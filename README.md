@@ -45,6 +45,7 @@ Also included:
 - **Progression**: four tiers (Watcher → Miracle Worker → World Shaper → Architect of Creation), unlocked by divine renown.
 - **Divine philosophies**: Compassionate, Hidden, Wrathful (unlocks Smite) and Independent Humanity.
 - **Sandbox** settings and **challenge** scenarios: The Silent Decade, Empire of Faith, World on the Brink and Hands-Off God.
+- **2D people**: every person is drawn as a small figure, with walking animation and facing. Skin and hair run in families, hair greys with age, expressions follow mood, and clothing and headwear follow role (crown, helmet, straw hat, priest's hood). Dossiers and prayer cards show matching portraits.
 - Time controls from pause to "Generations" speed, plus a short tutorial and a how-to-play screen.
 
 ## Controls
@@ -82,6 +83,7 @@ js/sim/*.js         simulation core: no DOM access, runs headless in Node
   forms.js          spectral, possession and human forms
   sim.js            minute/hour/day orchestration, challenges, the command API
   save.js           versioned serialisation, slots, migration hook
+js/ui/figures.js    2D people and portraits (appearance derived from identity; not saved)
 js/ui/*.js          presentation only: it reads state and sends commands through G.Sim.command
 ```
 

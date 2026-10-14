@@ -84,7 +84,7 @@
     let best = null;
     let bd = 0.75;
     for (const c of S.living(world)) {
-      const d = U.dist(c.x, c.y, tx, ty);
+      const d = Math.min(U.dist(c.x, c.y, tx, ty), U.dist(c.x, c.y - 0.45, tx, ty));
       if (d < bd) {
         bd = d;
         best = c;
@@ -191,9 +191,11 @@
     const pending = new Map();
     for (const p of world.prayers) if (p.status === 'pending') pending.set(p.requesterId, p.urgency);
     const r = Math.max(3, ts * 0.3);
+    const u = ts / 20; // figure units -> pixels
     const witnessMode = world.player.form !== 'spectral';
     const nightA = nightAlpha(world);
-    for (const c of S.living(world)) {
+    const people = S.living(world).sort((a, b) => a.y - b.y);
+    for (const c of people) {
       const x = sx(c.x), y = sy(c.y);
       if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
       if (c.possessed) {
@@ -209,58 +211,51 @@
         ctx.strokeStyle = `rgba(255,80,70,${0.5 + Math.sin(now / 200) * 0.4})`;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(x, y, r * 2, 0, Math.PI * 2);
+        ctx.arc(x, y - r, r * 2.4, 0, Math.PI * 2);
         ctx.stroke();
       }
-      ctx.fillStyle = UI.roleColor(c);
-      ctx.beginPath();
-      ctx.arc(x, y, c.age < 14 ? r * 0.75 : r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = c.known.beliefs ? UI.beliefColor(c.belief) : '#00000099';
-      ctx.lineWidth = c.known.beliefs ? 2 : 1;
-      ctx.stroke();
-      if (sel && sel.kind === 'character' && sel.id === c.id) {
-        ctx.strokeStyle = '#e0b341';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(x, y, r + 5, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      const fs = Math.max(9, ts * 0.42);
+      const isSel = sel && sel.kind === 'character' && sel.id === c.id;
+      const mo = UI.Figures.motion(c, now);
+      UI.Figures.draw(ctx, c, x, y, u, {
+        now, moving: mo.moving && !c.asleep, facing: mo.facing, asleep: c.asleep && c.activity === 'sleeping',
+        ringColor: c.known.beliefs ? UI.beliefColor(c.belief) : null, selected: isSel,
+      });
+      const top = c.asleep && c.activity === 'sleeping' ? r : UI.Figures.headTop(c, u);
+      const fs = Math.min(13, Math.max(9, ts * 0.42));
       ctx.font = `${fs}px sans-serif`;
       if (pending.has(c.id)) {
-        const u = pending.get(c.id);
-        ctx.fillStyle = u >= 3 ? '#ff8a80' : u >= 2 ? '#ffd27a' : '#cfe0ff';
-        ctx.fillText('✦', x, y - r - 3);
+        const urg = pending.get(c.id);
+        ctx.fillStyle = urg >= 3 ? '#ff8a80' : urg >= 2 ? '#ffd27a' : '#cfe0ff';
+        ctx.fillText('✦', x, y - top - 3);
       } else if (c.asleep) {
         ctx.fillStyle = '#9fb3d9';
-        ctx.fillText('z', x + r, y - r);
+        ctx.fillText('z', x + r, y - top);
       }
       if (c.prophet) {
         ctx.fillStyle = '#ffe58a';
-        ctx.fillText('★', x - r - 4, y - r);
+        ctx.fillText('★', x - r - 4, y - top);
       }
       if (c.gift && c.known.beliefs) {
         ctx.fillStyle = '#c8a2ff';
         ctx.beginPath();
-        ctx.arc(x + r, y + r, 2.5, 0, Math.PI * 2);
+        ctx.arc(x + r, y - top + 2, 2.5, 0, Math.PI * 2);
         ctx.fill();
       }
       // Witness indicator: who can see your body right now.
       if (witnessMode && !c.asleep && !c.possessed && U.dist(c.x, c.y, pos.x, pos.y) <= 4) {
         ctx.fillStyle = '#ffffffcc';
-        ctx.fillText('👁', x + r + 4, y + 3);
+        ctx.fillText('👁', x + r + 6, y - top + fs);
       }
       // Gifted people who perceive the spectral player
       if (!witnessMode && c.gift && !c.asleep && U.dist(c.x, c.y, pos.x, pos.y) <= 4) {
         ctx.fillStyle = '#c8a2ff';
-        ctx.fillText('✧ senses you', x, y + r + fs);
+        ctx.fillText('✧ senses you', x, y + r + fs * 1.6);
       }
-      if (ts >= 30 || (st.hover && st.hover.kind === 'character' && st.hover.id === c.id) || (sel && sel.kind === 'character' && sel.id === c.id)) {
+      if (ts >= 44 || (st.hover && st.hover.kind === 'character' && st.hover.id === c.id) || (sel && sel.kind === 'character' && sel.id === c.id)) {
         ctx.fillStyle = '#000000aa';
-        ctx.fillText(c.first, x + 1, y + r + fs + 1 + (c.gift && !witnessMode ? fs : 0));
+        ctx.fillText(c.first, x + 1, y + r + fs * 0.6 + 1 + (c.gift && !witnessMode ? fs : 0));
         ctx.fillStyle = '#fff';
-        ctx.fillText(c.first, x, y + r + fs + (c.gift && !witnessMode ? fs : 0));
+        ctx.fillText(c.first, x, y + r + fs * 0.6 + (c.gift && !witnessMode ? fs : 0));
       }
     }
 
@@ -297,16 +292,19 @@
       ctx.stroke();
       ctx.setLineDash([]);
     } else if (p.form === 'human') {
-      ctx.fillStyle = '#f4f1e8';
-      ctx.strokeStyle = '#e0b341';
-      ctx.lineWidth = 2;
+      const g = ctx.createRadialGradient(px, py - r, 0, px, py - r, ts * 1.1);
+      g.addColorStop(0, 'rgba(255,220,120,0.35)');
+      g.addColorStop(1, 'rgba(255,220,120,0)');
+      ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(px, py, r * 1.1, 0, Math.PI * 2);
+      ctx.arc(px, py - r, ts * 1.1, 0, Math.PI * 2);
       ctx.fill();
-      ctx.stroke();
+      const me = { id: -1, first: 'You', last: '', age: 30, role: 'traveller', mood: 60 };
+      const mo = UI.Figures.motion({ id: -1, x: p.human.x, y: p.human.y }, now);
+      UI.Figures.draw(ctx, me, px, py, u, { now, moving: mo.moving, facing: mo.facing, look: UI.Figures.travellerLook, selected: true });
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${Math.max(10, ts * 0.42)}px sans-serif`;
-      ctx.fillText(p.human.detainedUntil > world.t ? 'You (detained)' : 'You', px, py - r - 6);
+      ctx.fillText(p.human.detainedUntil > world.t ? 'You (detained)' : 'You', px, py - UI.Figures.headTop(me, u) - 6);
     }
     if (st.moveTarget) {
       ctx.strokeStyle = '#e0b34188';

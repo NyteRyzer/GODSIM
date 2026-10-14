@@ -75,7 +75,7 @@
     for (const p of list) {
       const c = S.char(world, p.requesterId);
       html += `<div class="card clickable ${sel && sel.kind === 'prayer' && sel.id === p.id ? 'selected' : ''}" data-prayer="${p.id}">
-        <div class="row"><span class="prayer-icon">${p.icon}</span><b>${esc(c ? c.first + ' ' + c.last : p.requesterName)}</b><span class="urg urg${p.urgency}" style="margin-left:auto">${S.URGENCY[p.urgency]}</span></div>
+        <div class="row">${c ? UI.Figures.portrait(c, 26) : ''}<span class="prayer-icon">${p.icon}</span><b>${esc(c ? c.first + ' ' + c.last : p.requesterName)}</b><span class="urg urg${p.urgency}" style="margin-left:auto">${S.URGENCY[p.urgency]}</span></div>
         <div class="small muted">${esc(p.location.place)} · ${T.duration(p.expiresAt - world.t)} left</div>
         <div style="margin-top:3px">${esc(p.situation)}</div></div>`;
     }
@@ -123,7 +123,7 @@
     return `<h3>Nothing selected</h3>
       <p class="muted">Click a person or building in Thornhaven, a prayer in the inbox, or a province on the World map.</p>
       <h4>Near you</h4>
-      ${near.length ? near.slice(0, 10).map((c) => `<div class="card clickable" data-char="${c.id}"><b>${esc(c.name)}</b> <span class="muted small">${esc(c.occupation)} · ${esc(c.activity)}</span></div>`).join('') : '<div class="muted">No one.</div>'}`;
+      ${near.length ? near.slice(0, 10).map((c) => `<div class="card clickable row" data-char="${c.id}" style="display:flex;gap:8px;align-items:center">${UI.Figures.portrait(c, 28)}<span><b>${esc(c.name)}</b> <br><span class="muted small">${esc(c.occupation)} · ${esc(c.activity)}</span></span></div>`).join('') : '<div class="muted">No one.</div>'}`;
   };
 
   function abilityButtons(world, targetKind, target) {
@@ -157,8 +157,8 @@
     const pos = S.playerPos(world);
     const dist = U.dist(c.x, c.y, pos.x, pos.y);
     const place = (S.building(world, c.at) || G.Data.city.zones.find((z) => z.id === c.at) || { name: S.districtName(S.districtAt(world, c.x, c.y)) }).name;
-    let h = `<div class="row" style="display:flex;gap:8px;align-items:center"><span style="width:14px;height:14px;border-radius:7px;background:${UI.roleColor(c)};display:inline-block"></span><h3>${esc(c.name)}</h3></div>
-      <div class="muted">${c.sex === 'f' ? 'Woman' : 'Man'}, ${Math.floor(c.age)} · ${esc(c.occupation)}${c.alive ? '' : ` · <span class="red">died of ${esc(c.causeOfDeath)}</span>`}</div>`;
+    let h = `<div style="display:flex;gap:10px;align-items:center">${UI.Figures.portrait(c, 60)}<div><h3>${esc(c.name)}</h3>
+      <div class="muted">${c.sex === 'f' ? 'Woman' : 'Man'}, ${Math.floor(c.age)} · ${esc(c.occupation)}${c.alive ? '' : ` · <span class="red">died of ${esc(c.causeOfDeath)}</span>`}</div></div></div>`;
     if (!c.alive) return h + memoriesHtml(world, c, true);
     h += `<div style="margin-top:6px">${esc(capital(c.activity))} at ${esc(place)}${c.asleep ? ' (asleep)' : ''}</div>`;
     const tags = [];
