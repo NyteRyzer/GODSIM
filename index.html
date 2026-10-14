@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GODSIM: Divine Dominion</title>
+  <meta name="description" content="A living Earth. A changing humanity. A God whose power depends on faith." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app" class="hidden">
+    <header id="topbar">
+      <div class="brand" title="GODSIM: Divine Dominion">GODSIM</div>
+      <div id="faith" class="faith" tabindex="0" aria-label="Faith">
+        <div class="faith-row"><span class="faith-label">Faith</span><span id="faith-num"></span><span id="faith-net" class="faith-net"></span></div>
+        <div class="faith-bar"><div id="faith-fill"></div></div>
+        <div id="faith-tip" class="tip"></div>
+      </div>
+      <div id="tier" class="tier"></div>
+      <div id="clock" class="clock"></div>
+      <div class="group" id="speed" role="group" aria-label="Time controls">
+        <button data-speed="0" title="Pause (Space)">❚❚</button>
+        <button data-speed="1" title="Slow (1)">▶</button>
+        <button data-speed="2" title="Normal (2)">▶▶</button>
+        <button data-speed="3" title="Fast (3)">▶▶▶</button>
+        <button data-speed="4" title="Very fast (4)">⏩</button>
+        <button data-speed="5" title="Generations (5)">⏭</button>
+      </div>
+      <div class="group" id="views" role="group" aria-label="View">
+        <button data-view="world" title="World View (M)">World</button>
+        <button data-view="local" title="Local View (L)">Thornhaven</button>
+      </div>
+      <div class="group" id="forms" role="group" aria-label="Form">
+        <button data-form="spectral" title="Spectral form (Q)">👁 Spectral</button>
+        <button data-form="possession" title="Possess the selected person (E)">✋ Possess</button>
+        <button data-form="human" title="Walk as a human (H)">🚶 Human</button>
+      </div>
+      <div class="spacer"></div>
+      <button id="btn-chronicle" class="plain" title="Chronicle (C)">📜<span class="lbl"> Chronicle</span></button>
+      <button id="btn-menu" class="plain" title="Menu (Esc)">☰<span class="lbl"> Menu</span></button>
+    </header>
+
+    <aside id="left">
+      <div class="tabs">
+        <button data-ltab="prayers" class="active">Prayers <span id="prayer-count" class="badge"></span></button>
+        <button data-ltab="alerts">Alerts <span id="alert-count" class="badge"></span></button>
+      </div>
+      <div id="prayer-filters" class="chips"></div>
+      <div id="left-body" class="scroll"></div>
+    </aside>
+
+    <main id="viewport">
+      <canvas id="canvas"></canvas>
+      <div id="view-hint" class="view-hint"></div>
+      <div id="overlay-bar" class="overlay-bar hidden"></div>
+      <div id="form-bar" class="form-bar"></div>
+    </main>
+
+    <aside id="right">
+      <div class="tabs">
+        <button data-rtab="inspect" class="active">Inspect</button>
+        <button data-rtab="nation">Nation</button>
+        <button data-rtab="faith">Divinity</button>
+      </div>
+      <div id="right-body" class="scroll"></div>
+    </aside>
+
+    <footer id="feed" class="scroll" aria-live="polite"></footer>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div id="modal-box" class="modal-box"></div></div>
+  <div id="toasts"></div>
+
+  <!-- Simulation core (no DOM access) -->
+  <script src="js/core/base.js"></script>
+  <script src="js/data/city.js"></script>
+  <script src="js/data/abilities.js"></script>
+  <script src="js/data/politics.js"></script>
+  <script src="js/data/scenarios.js"></script>
+  <script src="js/sim/world.js"></script>
+  <script src="js/sim/characters.js"></script>
+  <script src="js/sim/faith.js"></script>
+  <script src="js/sim/religion.js"></script>
+  <script src="js/sim/interventions.js"></script>
+  <script src="js/sim/crises.js"></script>
+  <script src="js/sim/politics.js"></script>
+  <script src="js/sim/prayers.js"></script>
+  <script src="js/sim/forms.js"></script>
+  <script src="js/sim/sim.js"></script>
+  <script src="js/sim/save.js"></script>
+  <!-- Presentation layer -->
+  <script src="js/ui/common.js"></script>
+  <script src="js/ui/local.js"></script>
+  <script src="js/ui/worldmap.js"></script>
+  <script src="js/ui/panels.js"></script>
+  <script src="js/ui/screens.js"></script>
+  <script src="js/ui/app.js"></script>
+</body>
+</html>

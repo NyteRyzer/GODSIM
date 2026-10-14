@@ -1,0 +1,11 @@
+{
+  "name": "godsim",
+  "version": "0.1.0",
+  "description": "GODSIM: Divine Dominion - a grand-strategy god and life simulation (MVP: The Living Country)",
+  "private": true,
+  "scripts": {
+    "test": "node tests/run.js",
+    "start": "python3 -m http.server 8000"
+  },
+  "license": "UNLICENSED"
+}
