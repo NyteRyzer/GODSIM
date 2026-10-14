@@ -1,4 +1,5 @@
 // Local View: the explorable city rendered on a 2D canvas.
+// Layers: terrain -> interiors -> flood -> people -> roofs (smart cutaway) -> overlays -> night & weather -> markers.
 (function (G) {
   'use strict';
   const UI = G.UI;
@@ -6,67 +7,41 @@
   const U = G.Util;
   const L = (UI.Local = {});
   const BASE = 24; // pixels per tile at zoom 1
+  L.roofAlpha = {};
+  L.CUTAWAY_ZOOM = 1.7;
 
-  const BUILD_COLORS = {
-    palace: ['#5b4a7a', '#8a74b8'], manor: ['#5d4864', '#8e6f99'], barracks: ['#5c3b3b', '#8f5a55'], healer: ['#3f6150', '#62957a'],
-    temple: ['#6f6146', '#d8c27a'], market: ['#6b5a3e', '#a68a5b'], academy: ['#3e5068', '#6d87ab'], tavern: ['#5f4632', '#93704f'],
-    home: ['#5a4a3c', '#8a705a'], farmhouse: ['#6a5638', '#a3845a'],
-  };
-
-  function hash(x, y) {
-    let h = (x * 374761393 + y * 668265263) >>> 0;
-    h = ((h ^ (h >>> 13)) * 1274126177) >>> 0;
-    return (h ^ (h >>> 16)) / 4294967296;
+  function layers() {
+    if (!L.terrain) {
+      const Sc = UI.Scenery;
+      L.terrain = Sc.buildTerrain();
+      L.interiors = Sc.buildInteriors();
+      L.roofs = Sc.buildRoofs();
+      L.lamps = Sc.lamps();
+    }
   }
 
-  // Static ground layer drawn once.
-  function buildGround() {
-    const city = G.Data.city;
+  // Thumbnail of a building (roof and cutaway side by side) for the inspector.
+  const thumbs = {};
+  L.buildingThumb = function (b) {
+    if (thumbs[b.id]) return thumbs[b.id];
+    layers();
+    const P = UI.Scenery.P;
+    const R = UI.Scenery.roofRect(b);
+    const pad = 0.5;
+    const sw = (R.w + pad * 2) * P, sh = (R.h + pad * 2) * P;
+    const scale = Math.min(1, 150 / sw, 110 / sh);
     const c = document.createElement('canvas');
-    c.width = city.width * BASE;
-    c.height = city.height * BASE;
+    c.width = Math.round(sw * scale * 2 + 8);
+    c.height = Math.round(sh * scale);
     const g = c.getContext('2d');
-    for (let y = 0; y < city.height; y++) {
-      for (let x = 0; x < city.width; x++) {
-        const n = hash(x, y);
-        const east = x > city.river.x1;
-        g.fillStyle = east ? `hsl(${88 + n * 10}, 32%, ${24 + n * 4}%)` : `hsl(${96 + n * 12}, 22%, ${21 + n * 4}%)`;
-        g.fillRect(x * BASE, y * BASE, BASE, BASE);
-      }
-    }
-    for (const z of city.zones) {
-      g.fillStyle = '#6e6a32';
-      g.fillRect(z.x * BASE, z.y * BASE, z.w * BASE, z.h * BASE);
-      g.strokeStyle = '#8a8540';
-      g.lineWidth = 2;
-      for (let yy = z.y * BASE + 4; yy < (z.y + z.h) * BASE; yy += 7) {
-        g.beginPath();
-        g.moveTo(z.x * BASE + 2, yy);
-        g.lineTo((z.x + z.w) * BASE - 2, yy);
-        g.stroke();
-      }
-      g.fillStyle = '#ffffff66';
-      g.font = 'bold 13px sans-serif';
-      g.fillText(z.name, z.x * BASE + 6, (z.y + z.h) * BASE - 6);
-    }
-    g.fillStyle = '#8b7a58';
-    for (const r of city.roads) g.fillRect(r.x0 * BASE, r.y0 * BASE, (r.x1 - r.x0 + 1) * BASE, (r.y1 - r.y0 + 1) * BASE);
-    // River
-    for (let y = 0; y < city.height; y++) {
-      for (let x = city.river.x0; x <= city.river.x1; x++) {
-        g.fillStyle = `hsl(212, 55%, ${30 + hash(x, y) * 6}%)`;
-        g.fillRect(x * BASE, y * BASE, BASE, BASE);
-      }
-    }
-    for (const b of city.bridges) {
-      g.fillStyle = '#7a5a3a';
-      g.fillRect(city.river.x0 * BASE - 4, b.y0 * BASE + 2, (city.river.x1 - city.river.x0 + 1) * BASE + 8, (b.y1 - b.y0 + 1) * BASE - 4);
-      g.strokeStyle = '#4e3825';
-      g.lineWidth = 2;
-      g.strokeRect(city.river.x0 * BASE - 4, b.y0 * BASE + 2, (city.river.x1 - city.river.x0 + 1) * BASE + 8, (b.y1 - b.y0 + 1) * BASE - 4);
-    }
-    return c;
-  }
+    const src = [(R.x - pad) * P, (R.y - pad) * P, sw, sh];
+    g.drawImage(L.terrain, ...src, 0, 0, sw * scale, sh * scale);
+    g.drawImage(L.roofs, ...src, 0, 0, sw * scale, sh * scale);
+    g.drawImage(L.terrain, ...src, sw * scale + 8, 0, sw * scale, sh * scale);
+    g.drawImage(L.interiors, ...src, sw * scale + 8, 0, sw * scale, sh * scale);
+    thumbs[b.id] = c.toDataURL();
+    return thumbs[b.id];
+  };
 
   L.metrics = function (canvasW, canvasH) {
     const st = UI.state;
@@ -104,9 +79,33 @@
     return ((7 - m) / 2) * 0.5;
   }
 
+  // Which roofs are lifted: zoomed in, cutaway mode, or the building holds what you are looking at.
+  function updateRoofs(world, pos) {
+    const st = UI.state;
+    const sel = st.selected;
+    const focus = new Set();
+    const at = (x, y) => {
+      const b = S.buildingAt(world, x, y);
+      if (b) focus.add(b.id);
+    };
+    at(pos.x, pos.y);
+    if (sel && sel.kind === 'building') focus.add(sel.id);
+    if (sel && sel.kind === 'character') {
+      const c = S.char(world, sel.id);
+      if (c && c.alive) at(c.x, c.y);
+    }
+    if (st.hover && st.hover.kind === 'building') focus.add(st.hover.id);
+    const cut = st.roofMode === 'cutaway' || st.camera.zoom >= L.CUTAWAY_ZOOM;
+    for (const b of world.buildings) {
+      const target = b.type === 'market' || cut || focus.has(b.id) ? 0 : 1;
+      const a = L.roofAlpha[b.id] == null ? target : L.roofAlpha[b.id];
+      L.roofAlpha[b.id] = a + (target - a) * 0.18;
+    }
+  }
+
   L.render = function (ctx, W, H, world, now) {
     const st = UI.state;
-    if (!L.ground) L.ground = buildGround();
+    layers();
     const pos = S.playerPos(world);
     if (st.camera.follow) {
       st.camera.x = pos.x;
@@ -119,22 +118,38 @@
     st.camera.x = clampAxis(st.camera.x, W, city.width);
     st.camera.y = clampAxis(st.camera.y, H, city.height);
     const { ts, ox, oy } = L.metrics(W, H);
-    ctx.fillStyle = '#070b16';
-    ctx.fillRect(0, 0, W, H);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(L.ground, ox, oy, city.width * ts, city.height * ts);
     const sx = (x) => ox + x * ts;
     const sy = (y) => oy + y * ts;
+    const P = UI.Scenery.P;
+    const sel = st.selected;
+    updateRoofs(world, pos);
 
-    // Flood water
+    ctx.fillStyle = '#070b16';
+    ctx.fillRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(L.terrain, ox, oy, city.width * ts, city.height * ts);
+    UI.Scenery.drawRiverShimmer(ctx, sx, sy, ts, now, H);
+    ctx.drawImage(L.interiors, ox, oy, city.width * ts, city.height * ts);
+
+    // Flood water (rises over floors; roofs stay above it)
     if (world.flood.level > 0) {
       const zone = world.flood.diverted ? city.northFields : city.floodplain;
       const wave = Math.sin(now / 500) * 0.05;
-      ctx.fillStyle = `rgba(70,120,200,${0.55 + wave})`;
+      ctx.fillStyle = `rgba(78,110,140,${0.68 + wave})`;
       for (let y = zone.y0; y <= zone.y1; y++) {
         for (let x = zone.x0; x <= zone.x1; x++) {
           if (S.isFlooded(world, x + 0.5, y + 0.5)) ctx.fillRect(sx(x), sy(y), ts + 0.5, ts + 0.5);
         }
+      }
+      ctx.strokeStyle = 'rgba(220,235,255,0.25)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 90; i++) {
+        const fx = zone.x0 + ((i * 7.31) % (zone.x1 - zone.x0 + 1));
+        const fy = zone.y0 + ((i * 3.77 + now / 2600) % (zone.y1 - zone.y0 + 1));
+        if (!S.isFlooded(world, fx, fy)) continue;
+        ctx.beginPath();
+        ctx.arc(sx(fx), sy(fy), ts * (0.15 + ((now / 900 + i) % 1) * 0.35), 0, Math.PI);
+        ctx.stroke();
       }
     } else if (world.flood.stage === 'warning') {
       ctx.strokeStyle = 'rgba(120,170,255,0.5)';
@@ -143,76 +158,25 @@
       ctx.strokeRect(sx(z.x0), sy(z.y0), (z.x1 - z.x0 + 1) * ts, (z.y1 - z.y0 + 1) * ts);
       ctx.setLineDash([]);
     }
+    UI.Scenery.drawLampPosts(ctx, L.lamps, sx, sy, ts);
 
-    // Buildings
-    const sel = st.selected;
-    ctx.textAlign = 'center';
-    for (const b of world.buildings) {
-      const [wall, roof] = BUILD_COLORS[b.type] || BUILD_COLORS.home;
-      const x = sx(b.x), y = sy(b.y), w = b.w * ts, h = b.h * ts;
-      ctx.fillStyle = wall;
-      ctx.fillRect(x, y, w, h);
-      ctx.fillStyle = roof;
-      ctx.fillRect(x + 3, y + 3, w - 6, h - 6);
-      if (b.type === 'market') {
-        ctx.fillStyle = '#00000022';
-        for (let i = 1; i < b.w; i += 2) ctx.fillRect(x + i * ts, y + 3, ts * 0.5, h - 6);
-      }
-      if (b.type === 'temple') {
-        ctx.fillStyle = '#fff3c4';
-        ctx.beginPath();
-        ctx.arc(x + w / 2, y + h / 2, ts * 0.7, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      if (b.damage > 0) {
-        ctx.fillStyle = `rgba(40,25,10,${b.damage / 160})`;
-        ctx.fillRect(x, y, w, h);
-      }
-      if (b.protectedUntil > world.t) {
-        ctx.strokeStyle = `rgba(255,215,90,${0.6 + Math.sin(now / 300) * 0.3})`;
-        ctx.lineWidth = 3;
-        ctx.strokeRect(x - 3, y - 3, w + 6, h + 6);
-      }
-      if (sel && sel.kind === 'building' && sel.id === b.id) {
-        ctx.strokeStyle = '#e0b341';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x - 1, y - 1, w + 2, h + 2);
-      }
-      if (ts >= 18 && b.type !== 'home' && b.type !== 'farmhouse') {
-        ctx.fillStyle = '#000000aa';
-        ctx.font = `bold ${Math.max(10, ts * 0.45)}px sans-serif`;
-        ctx.fillText(b.name, x + w / 2 + 1, y + h - 5 + 1);
-        ctx.fillStyle = '#fff';
-        ctx.fillText(b.name, x + w / 2, y + h - 5);
-      }
-    }
-
-    // Characters
-    const pending = new Map();
-    for (const p of world.prayers) if (p.status === 'pending') pending.set(p.requesterId, p.urgency);
+    // People (figures only; markers are drawn later so they stay readable over roofs and at night)
     const r = Math.max(3, ts * 0.3);
     const u = ts / 20; // figure units -> pixels
-    const witnessMode = world.player.form !== 'spectral';
-    const nightA = nightAlpha(world);
     const people = S.living(world).sort((a, b) => a.y - b.y);
+    const onScreen = [];
     for (const c of people) {
       const x = sx(c.x), y = sy(c.y);
-      if (x < -20 || y < -20 || x > W + 20 || y > H + 20) continue;
+      if (x < -30 || y < -40 || x > W + 30 || y > H + 30) continue;
+      onScreen.push(c);
       if (c.possessed) {
-        const g = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
+        const g = ctx.createRadialGradient(x, y - r, 0, x, y - r, r * 4);
         g.addColorStop(0, 'rgba(255,220,120,0.8)');
         g.addColorStop(1, 'rgba(255,220,120,0)');
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(x, y, r * 4, 0, Math.PI * 2);
+        ctx.arc(x, y - r, r * 4, 0, Math.PI * 2);
         ctx.fill();
-      }
-      if (c.flags.trapped) {
-        ctx.strokeStyle = `rgba(255,80,70,${0.5 + Math.sin(now / 200) * 0.4})`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(x, y - r, r * 2.4, 0, Math.PI * 2);
-        ctx.stroke();
       }
       const isSel = sel && sel.kind === 'character' && sel.id === c.id;
       const mo = UI.Figures.motion(c, now);
@@ -220,57 +184,66 @@
         now, moving: mo.moving && !c.asleep, facing: mo.facing, asleep: c.asleep && c.activity === 'sleeping',
         ringColor: c.known.beliefs ? UI.beliefColor(c.belief) : null, selected: isSel,
       });
-      const top = c.asleep && c.activity === 'sleeping' ? r : UI.Figures.headTop(c, u);
-      const fs = Math.min(13, Math.max(9, ts * 0.42));
-      ctx.font = `${fs}px sans-serif`;
-      if (pending.has(c.id)) {
-        const urg = pending.get(c.id);
-        ctx.fillStyle = urg >= 3 ? '#ff8a80' : urg >= 2 ? '#ffd27a' : '#cfe0ff';
-        ctx.fillText('✦', x, y - top - 3);
-      } else if (c.asleep) {
-        ctx.fillStyle = '#9fb3d9';
-        ctx.fillText('z', x + r, y - top);
-      }
-      if (c.prophet) {
-        ctx.fillStyle = '#ffe58a';
-        ctx.fillText('★', x - r - 4, y - top);
-      }
-      if (c.gift && c.known.beliefs) {
-        ctx.fillStyle = '#c8a2ff';
+    }
+
+    // Roofs (each building faded independently)
+    const roofA = (id) => (L.roofAlpha[id] == null ? 1 : L.roofAlpha[id]);
+    for (const b of world.buildings) {
+      const a = roofA(b.id);
+      if (a < 0.02 || b.type === 'market') continue;
+      const R = UI.Scenery.roofRect(b);
+      const pad = 0.4;
+      ctx.globalAlpha = a;
+      ctx.drawImage(L.roofs, (R.x - pad) * P, (R.y - pad) * P, (R.w + pad * 2) * P, (R.h + pad * 2) * P, sx(R.x - pad), sy(R.y - pad), (R.w + pad * 2) * ts, (R.h + pad * 2) * ts);
+    }
+    ctx.globalAlpha = 1;
+    UI.Scenery.drawSmoke(ctx, world, sx, sy, ts, now, roofA);
+
+    // Building overlays: damage, wards, selection
+    for (const b of world.buildings) {
+      const x = sx(b.x), y = sy(b.y), w = b.w * ts, h = b.h * ts;
+      if (b.damage > 0) {
+        ctx.fillStyle = `rgba(70,50,25,${b.damage / 220})`;
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = `rgba(30,20,10,${b.damage / 150})`;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.arc(x + r, y - top + 2, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+        for (let k = 0; k < 3; k++) {
+          const cx = x + w * (0.2 + k * 0.3), cy = y + h * (0.3 + (k % 2) * 0.3);
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + ts * 0.3, cy + ts * 0.2);
+          ctx.lineTo(cx + ts * 0.15, cy + ts * 0.45);
+        }
+        ctx.stroke();
       }
-      // Witness indicator: who can see your body right now.
-      if (witnessMode && !c.asleep && !c.possessed && U.dist(c.x, c.y, pos.x, pos.y) <= 4) {
-        ctx.fillStyle = '#ffffffcc';
-        ctx.fillText('👁', x + r + 6, y - top + fs);
+      if (b.protectedUntil > world.t) {
+        const pulse = 0.55 + Math.sin(now / 300) * 0.25;
+        ctx.save();
+        ctx.shadowColor = 'rgba(255,215,90,0.9)';
+        ctx.shadowBlur = ts * 0.8;
+        ctx.strokeStyle = `rgba(255,215,90,${pulse})`;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x - 4, y - 4, w + 8, h + 8);
+        ctx.restore();
       }
-      // Gifted people who perceive the spectral player
-      if (!witnessMode && c.gift && !c.asleep && U.dist(c.x, c.y, pos.x, pos.y) <= 4) {
-        ctx.fillStyle = '#c8a2ff';
-        ctx.fillText('✧ senses you', x, y + r + fs * 1.6);
-      }
-      if (ts >= 44 || (st.hover && st.hover.kind === 'character' && st.hover.id === c.id) || (sel && sel.kind === 'character' && sel.id === c.id)) {
-        ctx.fillStyle = '#000000aa';
-        ctx.fillText(c.first, x + 1, y + r + fs * 0.6 + 1 + (c.gift && !witnessMode ? fs : 0));
-        ctx.fillStyle = '#fff';
-        ctx.fillText(c.first, x, y + r + fs * 0.6 + (c.gift && !witnessMode ? fs : 0));
+      if (sel && sel.kind === 'building' && sel.id === b.id) {
+        ctx.strokeStyle = '#e0b341';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        ctx.strokeRect(x - 2, y - 2, w + 4, h + 4);
+        ctx.setLineDash([]);
       }
     }
 
-    // Night
+    // Night, lights and weather
+    const nightA = nightAlpha(world);
     if (nightA > 0) {
       ctx.fillStyle = `rgba(8,14,40,${nightA})`;
       ctx.fillRect(0, 0, W, H);
-      // Warm windows
-      ctx.fillStyle = `rgba(255,200,110,${nightA * 0.7})`;
-      for (const b of world.buildings) {
-        if (b.type === 'home' || b.type === 'farmhouse' || b.type === 'tavern' || b.type === 'palace') {
-          ctx.fillRect(sx(b.x + b.w / 2) - 2, sy(b.y + 1) - 2, 4, 4);
-        }
-      }
+      UI.Scenery.drawLights(ctx, world, L.lamps, sx, sy, ts, nightA * 2, now);
     }
+    const fs = world.flood.stage;
+    if (fs === 'warning' || fs === 'rising' || fs === 'flooding') UI.Scenery.drawRain(ctx, W, H, now, fs === 'warning' ? 0.5 : 1);
 
     // Player
     const px = sx(pos.x), py = sy(pos.y);
@@ -302,9 +275,85 @@
       const me = { id: -1, first: 'You', last: '', age: 30, role: 'traveller', mood: 60 };
       const mo = UI.Figures.motion({ id: -1, x: p.human.x, y: p.human.y }, now);
       UI.Figures.draw(ctx, me, px, py, u, { now, moving: mo.moving, facing: mo.facing, look: UI.Figures.travellerLook, selected: true });
+      ctx.textAlign = 'center';
       ctx.fillStyle = '#fff';
-      ctx.font = `bold ${Math.max(10, ts * 0.42)}px sans-serif`;
+      ctx.font = `bold ${Math.min(14, Math.max(10, ts * 0.42))}px sans-serif`;
       ctx.fillText(p.human.detainedUntil > world.t ? 'You (detained)' : 'You', px, py - UI.Figures.headTop(me, u) - 6);
+    }
+
+    // Markers over everything: prayers, trapped, prophets, witnesses, names
+    const pending = new Map();
+    for (const pr of world.prayers) if (pr.status === 'pending') pending.set(pr.requesterId, pr.urgency);
+    const witnessMode = p.form !== 'spectral';
+    const fsz = Math.min(13, Math.max(9, ts * 0.42));
+    ctx.textAlign = 'center';
+    ctx.font = `${fsz}px sans-serif`;
+    for (const c of onScreen) {
+      const x = sx(c.x), y = sy(c.y);
+      const b = S.buildingAt(world, c.x, c.y);
+      const covered = b && roofA(b.id) > 0.6;
+      const sleeping = c.asleep && c.activity === 'sleeping';
+      const top = covered ? r : sleeping ? r : UI.Figures.headTop(c, u);
+      if (c.flags.trapped) {
+        ctx.strokeStyle = `rgba(255,80,70,${0.5 + Math.sin(now / 200) * 0.4})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y - r, r * 2.4, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      if (pending.has(c.id)) {
+        const urg = pending.get(c.id);
+        ctx.fillStyle = urg >= 3 ? '#ff8a80' : urg >= 2 ? '#ffd27a' : '#cfe0ff';
+        ctx.fillText('✦', x, y - top - 3);
+      } else if (c.asleep && !covered) {
+        ctx.fillStyle = '#9fb3d9';
+        ctx.fillText('z', x + r, y - top - ((now / 600) % 1) * 6);
+      }
+      if (covered) continue;
+      if (c.prophet) {
+        ctx.fillStyle = '#ffe58a';
+        ctx.fillText('★', x - r - 4, y - top);
+      }
+      if (c.gift && c.known.beliefs) {
+        ctx.fillStyle = '#c8a2ff';
+        ctx.beginPath();
+        ctx.arc(x + r, y - top + 2, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      if (witnessMode && !c.asleep && !c.possessed && U.dist(c.x, c.y, pos.x, pos.y) <= 4) {
+        ctx.fillStyle = '#ffffffcc';
+        ctx.fillText('👁', x + r + 6, y - top + fsz);
+      }
+      if (!witnessMode && c.gift && !c.asleep && U.dist(c.x, c.y, pos.x, pos.y) <= 4) {
+        ctx.fillStyle = '#c8a2ff';
+        ctx.fillText('✧ senses you', x, y + r + fsz * 1.6);
+      }
+      if (ts >= 44 || (st.hover && st.hover.kind === 'character' && st.hover.id === c.id) || (sel && sel.kind === 'character' && sel.id === c.id)) {
+        const ly = y + r + fsz * 0.6 + (c.gift && !witnessMode ? fsz : 0);
+        const tw = ctx.measureText(c.first).width;
+        ctx.fillStyle = 'rgba(10,14,28,0.7)';
+        ctx.fillRect(x - tw / 2 - 3, ly - fsz + 1, tw + 6, fsz + 3);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(c.first, x, ly);
+      }
+    }
+
+    // Building name plaques
+    if (ts >= 16) {
+      ctx.font = `600 ${Math.min(13, Math.max(10, ts * 0.42))}px sans-serif`;
+      for (const b of world.buildings) {
+        if (b.type === 'home' || b.type === 'farmhouse') continue;
+        const x = sx(b.x + b.w / 2), y = sy(b.y + b.h) + Math.min(16, ts * 0.6);
+        if (x < -100 || x > W + 100 || y < -20 || y > H + 20) continue;
+        const tw = ctx.measureText(b.name).width;
+        ctx.fillStyle = 'rgba(20,16,10,0.72)';
+        ctx.fillRect(x - tw / 2 - 6, y - 12, tw + 12, 17);
+        ctx.strokeStyle = 'rgba(224,179,65,0.6)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x - tw / 2 - 5.5, y - 11.5, tw + 11, 16);
+        ctx.fillStyle = '#f3e7c4';
+        ctx.fillText(b.name, x, y + 1);
+      }
     }
     if (st.moveTarget) {
       ctx.strokeStyle = '#e0b34188';

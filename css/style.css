@@ -118,6 +118,7 @@ button.plain:hover { border-color: var(--gold-dim); }
 .unknown { color: var(--muted); font-style: italic; }
 .mem { border-left: 2px solid var(--line); padding: 2px 0 2px 8px; margin: 4px 0; }
 .mem .t { color: var(--muted); font-size: 11px; }
+.bthumb { display: block; width: 100%; max-width: 330px; margin-top: 8px; border-radius: 8px; border: 1px solid var(--line); image-rendering: auto; }
 .portrait { flex: none; border-radius: 50%; box-shadow: 0 0 0 2px var(--line); }
 .link { color: #9cc0ff; cursor: pointer; text-decoration: underline dotted; }
 

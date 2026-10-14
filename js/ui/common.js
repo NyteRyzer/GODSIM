@@ -17,6 +17,7 @@
     rtab: 'inspect',
     prayerFilter: 'all',
     overlay: 'belief',
+    roofMode: 'auto', // auto | cutaway
     camera: { x: 30, y: 16, zoom: 1, follow: true },
     keys: {},
     dirty: true,
@@ -43,7 +44,7 @@
     UI.$('#toasts').appendChild(el);
     setTimeout(() => el.remove(), kind === 'alert' ? 7000 : 4200);
     const all = UI.$$('#toasts .toast');
-    if (all.length > 5) all[0].remove();
+    while (UI.$$('#toasts .toast').length > 3) UI.$('#toasts .toast').remove();
   };
 
   // Send a command to the simulation and report the outcome.

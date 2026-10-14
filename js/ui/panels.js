@@ -226,11 +226,31 @@
     return h + ms.map((m) => `<div class="mem"><div class="t">${T.format(world, m.t, false)}</div>${esc(m.text)}</div>`).join('');
   }
 
+  const BUILDING_ABOUT = {
+    palace: 'Seat of the Crown. A marble throne hall hung with banners; courtiers, clerks and guards come and go. Guards watch for strangers.',
+    manor: 'The townhouse of Lord Halvard Crane: parquet floors, a four-poster bed and a desk where ambitions are written down.',
+    barracks: 'Bunks for the army, a weapon rack, a training yard, and the city gaol behind iron bars.',
+    healer: "Nell Ashby's house of cots, drying herbs and remedies. The sick come here when they can afford to.",
+    temple: 'The Temple of the Unseen Flame. Pews face an altar where the flame never goes out. Every Restday the faithful gather here, and in a flood it is the city\'s shelter.',
+    market: 'Striped stalls around the town well: grain, cloth, fruit and gossip.',
+    academy: 'Desks, a blackboard and shelves of books. Scholars and students argue about how the world is made.',
+    tavern: 'Ale barrels, a warm hearth and round tables where the Reformers print their pamphlets and plot.',
+    home: 'A modest town house: beds, a hearth, a table and a chest of everything the family owns.',
+    farmhouse: 'A thatched farmhouse with a fenced yard, hay and a cart. It stands on the floodplain.',
+  };
+
   P.buildingPanel = function (world, b) {
     if (!b) return P.inspectNothing(world);
     const inside = S.living(world).filter((c) => S.buildingAt(world, c.x, c.y) === b);
     const residents = S.living(world).filter((c) => c.homeId === b.id);
     let h = `<h3>${esc(b.name)}</h3><div class="muted">${esc(capital(b.type))} · ${esc(S.districtName(S.districtAt(world, b.x + 1, b.y + 1)))}</div>`;
+    try {
+      h += `<img class="bthumb" alt="" src="${UI.Local.buildingThumb(b)}">`;
+    } catch (e) {
+      /* thumbnails are decorative */
+    }
+    const about = BUILDING_ABOUT[b.type];
+    if (about) h += `<div class="small" style="margin:6px 0">${esc(about)}</div>`;
     if (b.protectedUntil > world.t) h += `<div class="gold">Warded for ${T.duration(b.protectedUntil - world.t)}</div>`;
     if (b.damage > 0) h += UI.meter('Damage', b.damage, 'var(--red)', Math.round(b.damage));
     if (S.inFloodZone(b.x + 1, b.y + 1, world) && !world.flood.diverted) h += '<div class="small muted">Lies on the floodplain.</div>';
@@ -437,7 +457,8 @@
       UI.$('#overlay-bar').innerHTML = Object.keys(UI.WorldMap.overlays).map((k) => `<button data-overlay="${k}" class="${st.overlay === k ? 'active' : ''}" title="${esc(UI.WorldMap.overlays[k].desc)}">${esc(UI.WorldMap.overlays[k].name)}</button>`).join('');
       return;
     }
-    UI.$('#overlay-bar').classList.add('hidden');
+    UI.$('#overlay-bar').classList.remove('hidden');
+    UI.$('#overlay-bar').innerHTML = `<button data-roofs="1" class="${st.roofMode === 'cutaway' ? 'active' : ''}" title="Toggle roofs (R)">🏠 Roofs: ${st.roofMode === 'cutaway' ? 'lifted' : 'auto'}</button>`;
     const pos = S.playerPos(world);
     const b = S.buildingAt(world, pos.x, pos.y);
     const d = S.districtName(S.districtAt(world, pos.x, pos.y));

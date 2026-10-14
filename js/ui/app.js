@@ -246,12 +246,18 @@
     else if (key === 'h') UI.cmd({ type: 'form', form: 'human' });
     else if (key === 'e') possessSelected();
     else if (key === 'f') st.camera.follow = true;
+    else if (key === 'r') toggleRoofs();
     else if (key === 'c') Sc.chronicle();
     else if (key === '+' || key === '=') zoom(1.2);
     else if (key === '-') zoom(1 / 1.2);
     st.dirty = true;
   }
 
+  function toggleRoofs() {
+    st.roofMode = st.roofMode === 'cutaway' ? 'auto' : 'cutaway';
+    UI.toast(st.roofMode === 'cutaway' ? 'Roofs lifted: you can see inside every building.' : 'Roofs shown. They lift when you zoom in or look inside.');
+    st.dirty = true;
+  }
   function setSpeed(s) {
     st.speed = s;
     if (s) st.prevSpeed = s;
@@ -316,6 +322,7 @@
       return;
     }
     if (d.enter) return UI.setView('local');
+    if (d.roofs) return toggleRoofs();
     if (d.respond) return UI.cmd({ type: 'prayer', prayerId: +d.respond, kind: d.kind });
     if (d.ability) {
       const sel = document.querySelector(`select[data-optfor="${d.ability}"]`);
