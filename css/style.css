@@ -32,7 +32,7 @@ h3 { font-size: 15px; }
 h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 14px 0 6px; }
 
 #app {
-  display: grid; height: 100vh;
+  display: grid; height: 100vh; height: 100dvh;
   grid-template-columns: 300px 1fr 370px;
   grid-template-rows: 54px 1fr 120px;
   grid-template-areas: 'top top top' 'left view right' 'left feed right';

@@ -384,6 +384,8 @@
 
   // ---------- boot ----------
   function boot() {
+    const bm = document.getElementById('boot-msg');
+    if (bm) bm.remove();
     canvas = UI.$('#canvas');
     ctx = canvas.getContext('2d');
     window.addEventListener('resize', () => {

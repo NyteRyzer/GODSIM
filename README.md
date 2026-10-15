@@ -8,12 +8,9 @@ You play an unseen god over the Kingdom of Velmora in 1712. King Aldric is losin
 
 ## Running the game
 
-There is no build step and there are no dependencies. Open `index.html` in a modern browser:
+**Easiest:** download **`GODSIM.html`** (one file, about 400 KB) and double-click it. It contains the whole game, with nothing else needed and no internet required.
 
-```bash
-# any static server works, or just double-click index.html
-python3 -m http.server 8000   # then visit http://localhost:8000
-```
+To run from the source folders, open `index.html`. The `css/` and `js/` folders must sit next to it; if they are missing, the page tells you so. After changing the source, rebuild the single file with `node tools/build-single.js`.
 
 Run the simulation test suite (Node 18+):
 
