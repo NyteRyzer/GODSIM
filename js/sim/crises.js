@@ -240,6 +240,12 @@
     if (how === 'victory') {
       country.legitimacy = U.clamp(country.legitimacy + 10, 0, 100);
       n.strength = Math.max(20, n.strength - 10);
+      if (world.war.aggressor === 'velmora') {
+        country.treasury = U.clamp(country.treasury + 20, 0, 100);
+        country.economy = U.clamp(country.economy + 4, 0, 100);
+        S.province(world, 'highmarch').pop += 4;
+        S.log(world, { title: 'Spoils of war', text: `${n.name} ceded border lands and paid tribute. The army returns as heroes.`, level: 2, kind: 'war' });
+      }
     } else if (how === 'defeat') {
       country.legitimacy = U.clamp(country.legitimacy - 15, 0, 100);
       country.economy = U.clamp(country.economy - 8, 0, 100);

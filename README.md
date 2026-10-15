@@ -35,6 +35,7 @@ Also included:
 - **Witness interpretation**: every miracle is read through each witness's beliefs (protector, judge, coincidence or fraud). Stories spread through families, new religious movements form, and those movements merge into the Church or split from it in a schism.
 - **Divine reputation per community** (not a global morality score) and **divine exposure**.
 - **Memory and expectations**: people remember answered and unanswered prayers. Earlier miracles make later silence hurt more, and faith stability buffers belief so one bad event cannot erase years of it.
+- **Intrigue**: *Sway* plants an ambition in anyone (war, iron rule, coup, revolt, theocracy, reform, peace, mercy, loyalty), and in human form you can persuade people for free. Rulers act on their ambitions: they declare wars of conquest, impose martial law, purge the nobility. Coups, uprisings and holy coups grow as conspiracies that recruit members, risk discovery and strike when strong; you can join, launch or betray them through possession. Plots also form on their own when conditions ripen.
 - **Leader decisions**: rulers choose based on their own personality and beliefs. A vision, *Inspire a Leader*, or possessing them can sway the choice, but nothing guarantees it.
 - **Crises**: a scripted opening flood (the bible's River Miracle scenario), then emergent spring floods, plague, famine and war with a hostile neighbour.
 - **Generations**: aging, illness, death, marriage, births, coming of age, migrants and succession.
@@ -77,6 +78,7 @@ js/sim/*.js         simulation core: no DOM access, runs headless in Node
   prayers.js        prayer templates, generation, responses, memory & expectation
   interventions.js  divine abilities: costs, validation, effects
   religion.js       witnesses, reputation, movements, schisms, The Gift
+  intrigue.js       ambitions, conspiracies, wars of choice, martial law, purges
   politics.js       derived pressures, leader decisions, regime transitions, succession, elections
   crises.js         flood, plague, famine, war, rescues
   forms.js          spectral, possession and human forms

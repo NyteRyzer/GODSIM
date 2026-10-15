@@ -27,6 +27,7 @@
     const rng = new G.Rng(1);
     rng.state = data.rng && data.rng.state != null ? data.rng.state >>> 0 : (data.seed >>> 0);
     data.rng = rng;
+    data.plots = data.plots || []; // saves from before intrigue existed
     data.buildingMap = {};
     for (const b of data.buildings) data.buildingMap[b.id] = b;
     return data;

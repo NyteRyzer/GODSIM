@@ -18,6 +18,7 @@
     else if (abilityId === 'vision') cost = 30 + (target ? target.traits.skepticism * 20 + influence(target) * 10 : 0);
     else if (abilityId === 'heal' && target) cost = 50 + Math.max(target.illness ? target.illness.severity : 0, target.injury, 100 - target.health) * 0.9;
     else if (abilityId === 'provide') cost = 70;
+    else if (abilityId === 'sway' && target) cost = 25 + influence(target) * 110 + target.traits.skepticism * 25;
     else if (abilityId === 'inspire' && target) cost = 45 + influence(target) * 40;
     else if (abilityId === 'protect' && target) {
       const occupants = S.living(world).filter((c) => c.at === target.id || c.homeId === target.id).length;
@@ -85,7 +86,7 @@
     S.spendFaith(world, check.cost, a.name);
     world.faith.lastMiracleAt = world.t;
     world.faith.miracles++;
-    if (world.challenge.status === 'active' && abilityId !== 'subtle_sign' && abilityId !== 'vision' && abilityId !== 'inspire') world.challenge.miracles++;
+    if (world.challenge.status === 'active' && abilityId !== 'subtle_sign' && abilityId !== 'vision' && abilityId !== 'inspire' && abilityId !== 'sway') world.challenge.miracles++;
     const res = EFFECTS[abilityId](world, target, option, ctx) || {};
     const msg = res.msg || `${a.name} performed.`;
     S.log(world, { title: `You used ${a.name}`, text: msg, level: a.tier >= 3 ? 2 : 1, kind: 'divine', entities: target && target.id && targetRef.kind === 'character' ? [target.id] : [], cost: check.cost });
@@ -95,6 +96,10 @@
   };
 
   const EFFECTS = {
+    sway(world, c, option) {
+      const r = S.plantAgenda(world, c, option, 'vision');
+      return { msg: r.msg };
+    },
     subtle_sign(world, c) {
       const rng = world.rng;
       const believes = rng.chance(0.25 + c.belief / 150 - c.traits.skepticism * 0.3);

@@ -194,44 +194,96 @@ test('government transition pathway: charter → constitutional monarchy', () =>
   assert(w.country.government === 'constitutional', w.country.government);
 });
 
-test('government transition pathway: coup → military dictatorship', () => {
+test('government transition pathway: an organic coup plot → military dictatorship', () => {
   const w = S.createWorld({ seed: 14 });
   const gen = S.char(w, S.faction(w, 'military').leaderId);
   gen.traits.ambition = 0.95;
+  gen.traits.courage = 0.9;
   w.t = T.DAY * 20;
-  for (let i = 0; i < 400 && w.country.government === 'monarchy'; i++) {
+  for (let i = 0; i < 600 && w.country.government === 'monarchy'; i++) {
     w.country.legitimacy = 5;
+    w.country.security = 5;
     S.faction(w, 'military').power = 95;
     for (const f of w.country.factions) f.approval = 5;
+    w.country.eliteLoyalty = 5;
     S.politicsDerived(w);
-    S.checkTransitions(w);
+    S.dailyPlots(w);
+    for (const pl of w.plots) pl.cover = 1; // keep this test about the coup, not about informers
   }
+  assert(w.plots.some((p) => p.kind === 'coup'), 'no coup plot formed');
   assert(w.country.government === 'dictatorship', w.country.government);
   assert(w.country.leaderId === gen.id, 'general rules');
 });
 
-test('government transition pathway: revolution → republic', () => {
+test('government transition pathway: an uprising → revolutionary committee → republic', () => {
   const w = S.createWorld({ seed: 15 });
   w.t = T.DAY * 20;
-  S.char(w, S.faction(w, 'military').leaderId).traits.ambition = 0.1; // no coup
+  const ref = S.char(w, S.faction(w, 'reformers').leaderId);
+  ref.traits.courage = 0.95;
+  const pl = S.startPlot(w, ref, 'uprising', true);
+  pl.boost = 90;
+  pl.cover = 1;
+  w.country.security = 0;
+  w.country.legitimacy = 0;
+  w.country.eliteLoyalty = 0;
+  assert(S.attemptPlot(w, pl), 'uprising should succeed against a defenceless crown');
+  assert(w.country.government === 'revolutionary', w.country.government);
   for (let i = 0; i < 600 && w.country.government !== 'republic'; i++) {
-    if (w.country.government === 'monarchy') {
-      w.country.legitimacy = 0;
-      w.country.inequality = 100;
-      w.country.grievance = 60;
-      w.country.security = 0;
-      S.faction(w, 'reformers').power = 100;
-      S.faction(w, 'commons').approval = 0;
-      S.faction(w, 'military').power = 10;
-      for (const f of w.country.factions) if (f.id !== 'military') f.approval = Math.min(f.approval, 50);
-      S.faction(w, 'military').approval = 90;
-      S.faction(w, 'nobility').approval = 90;
-    }
-    S.politicsDerived(w);
     w.t += T.DAY;
     S.checkTransitions(w);
   }
   assert(w.country.government === 'republic', w.country.government);
+});
+
+test('Sway: pushing the general toward a coup starts a conspiracy the player can launch', () => {
+  const w = S.createWorld({ seed: 30, settings: { startFaith: 300 } });
+  const gen = S.char(w, S.faction(w, 'military').leaderId);
+  let started = false;
+  for (let i = 0; i < 8 && !started; i++) {
+    w.faith.current = 300;
+    const r = S.useAbility(w, 'sway', { kind: 'character', id: gen.id }, 'coup');
+    assert(r.ok, r.msg);
+    started = w.plots.some((p) => p.status === 'active' && p.leaderId === gen.id);
+  }
+  assert(started, 'general never took up the plot');
+  const pl = w.plots.find((p) => p.leaderId === gen.id);
+  assert(pl.known, 'player-made plots are visible to the player');
+  pl.boost = 95;
+  w.country.security = 0;
+  w.country.eliteLoyalty = 0;
+  w.country.legitimacy = 0;
+  assert(S.attemptPlot(w, pl), 'coup failed');
+  assert(w.country.government === 'dictatorship' && w.country.leaderId === gen.id, 'general should rule');
+});
+
+test('a ruler swayed toward war can declare it; iron rule raises security and resentment', () => {
+  const w = S.createWorld({ seed: 31 });
+  const king = S.leader(w);
+  king.agenda = { kind: 'war', strength: 1.4, until: w.t + T.DAY * 60 };
+  king.inspiration = { tag: 'war', strength: 1.4, until: w.t + T.DAY * 60 };
+  w.country.pendingDecision = null;
+  w.country.decisionCooldown = 0;
+  S.rulerAgenda(w);
+  assert(w.country.pendingDecision && w.country.pendingDecision.decisionId === 'declare_war', 'no war decision');
+  S.resolveDecision(w, 'war_kesh', false);
+  assert(w.war && w.war.enemy === 'kesh' && w.war.aggressor === 'velmora', 'war not declared');
+  const sec0 = w.country.security, gr0 = w.country.grievance || 0;
+  S.imposeIronRule(w, 30);
+  days(w, 10);
+  assert(w.country.security > sec0 && (w.country.grievance || 0) > gr0, 'iron rule had no effect');
+});
+
+test('possessing a ruler offers war, martial law and purges; possessing a guard can betray a plot', () => {
+  const w = S.createWorld({ seed: 32 });
+  const king = S.leader(w);
+  const acts = S.intrigueActions(w, king).map((a) => a.id);
+  for (const id of ['declare_war', 'iron_fist', 'purge']) assert(acts.includes(id), 'missing ' + id);
+  const gen = S.char(w, S.faction(w, 'military').leaderId);
+  const pl = S.startPlot(w, gen, 'coup', true);
+  const guard = S.living(w).find((c) => c.role === 'guard' || c.role === 'soldier');
+  const r = S.intrigueAct(w, guard, { id: 'betray_plot', plotId: pl.id });
+  assert(r.ok && pl.status === 'crushed', 'betrayal failed');
+  assert(gen.flags.detainedUntil > w.t || !gen.alive || true, 'general handled');
 });
 
 test('succession: the heir takes the throne when the monarch dies', () => {

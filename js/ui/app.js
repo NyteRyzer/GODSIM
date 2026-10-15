@@ -332,6 +332,10 @@
     }
     if (d.possess) return UI.cmd({ type: 'form', form: 'possession', targetId: +d.possess });
     if (d.whisper) return UI.cmd({ type: 'speakGifted', targetId: +d.whisper });
+    if (d.persuade) {
+      const sel = document.querySelector('select[data-optfor="persuade"]');
+      return UI.cmd({ type: 'persuade', targetId: +d.persuade, agenda: sel ? sel.value : 'loyalty' });
+    }
     if (d.formact != null) {
       const act = st.formActs && st.formActs[+d.formact];
       if (!act) return;

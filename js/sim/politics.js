@@ -120,6 +120,7 @@
         if (tag === 'reform') u += (1 - t.ambition) * 0.5 + t.kindness * 0.4 + t.skepticism * 0.3 - (leader.role === 'monarch' ? 0.4 : 0);
         if (tag === 'peace') u += t.caution * 0.6 + t.kindness * 0.3;
         if (tag === 'war') u += t.courage * 0.6 + t.ambition * 0.4;
+        if (tag === 'iron') u += (1 - t.kindness) * 0.6 + t.ambition * 0.4 + t.caution * 0.2;
         if (insp && insp.tag === tag) u += insp.strength * (0.6 + leader.belief / 100);
       }
       u /= Math.max(1, o.tags.length * 0.8);
@@ -176,6 +177,9 @@
     }
     if (o.flag === 'mobilize') c.warRisk = U.clamp(c.warRisk - 15, 0, 100);
     if (o.flag === 'granaries') c.flags.granaries = true;
+    if (o.flag && o.flag.startsWith('war:')) S.declareWar(world, o.flag.slice(4), S.leader(world) ? S.leader(world).name : null);
+    if (o.flag === 'iron') S.imposeIronRule(world, 45);
+    if (o.flag === 'purge') S.purgeNobles(world);
     if (o.transition) S.transition(world, o.transition, 'The charter was signed in the Great Hall.');
     S.politicsDerived(world);
   };
@@ -232,46 +236,11 @@
     const rng = world.rng;
     const since = world.t - c.govSince;
     if (since < T.DAY * 15) return;
-    // Coup: the army seizes power.
-    if (c.government !== 'dictatorship' && c.coupRisk > 68 && rng.chance((c.coupRisk - 68) * 0.004)) {
-      const gen = S.char(world, S.faction(world, 'military').leaderId);
-      if (gen && gen.alive && gen.traits.ambition > 0.5) {
-        const old = S.leader(world);
-        if (old && old.alive && old.id !== gen.id) {
-          old.flags.detainedUntil = world.t + T.DAY * 365;
-          S.addMemory(world, old, 'coup', `Overthrown by ${gen.name}.`, 3);
-        }
-        gen.role = 'monarch' === gen.role ? gen.role : gen.role;
-        S.transition(world, 'dictatorship', `Soldiers loyal to ${gen.name} seized the palace at dawn.`, gen);
-        S.faction(world, 'military').approval = 85;
-        S.faction(world, 'reformers').approval = 10;
-        return;
-      }
-    }
-    // Revolution: the people rise.
-    if ((c.government === 'monarchy' || c.government === 'dictatorship' || c.government === 'theocracy') && c.revolutionRisk > 66 && rng.chance((c.revolutionRisk - 66) * 0.004)) {
-      const ref = S.char(world, S.faction(world, 'reformers').leaderId);
-      const old = S.leader(world);
-      if (old && old.alive) {
-        old.flags.detainedUntil = world.t + T.DAY * 365;
-        S.addMemory(world, old, 'revolution', 'Deposed by the revolution.', 3);
-      }
-      if (ref && ref.alive) ref.flags.detainedUntil = 0;
-      S.transition(world, 'revolutionary', 'Crowds stormed the palace gates. The old order fell in a single night.', ref && ref.alive ? ref : null);
-      return;
-    }
+    // Coups, uprisings and holy coups now grow as conspiracies (see intrigue.js).
     // Revolutionary committee → republic
     if (c.government === 'revolutionary' && since > T.DAY * 40 && rng.chance(0.05)) {
       S.transition(world, 'republic', 'The Committee proclaimed a constitution and called the first presidential election.');
       return;
-    }
-    // Theocracy: the Church takes the throne.
-    if (c.government !== 'theocracy' && c.theocracyPressure > 70 && rng.chance((c.theocracyPressure - 70) * 0.003)) {
-      const priest = S.char(world, world.church.leaderId);
-      if (priest && priest.alive) {
-        S.transition(world, 'theocracy', `${priest.name} proclaimed that the miracles of recent years revealed divine will: the realm would be ruled by the Church.`, priest);
-        return;
-      }
     }
     // Constitutional monarchy → democracy once the assembly matures
     if (c.government === 'constitutional' && since > T.DAY * 90 && c.reformPressure > 45 && rng.chance(0.015)) {

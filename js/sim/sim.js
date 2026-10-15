@@ -39,6 +39,7 @@
     S.dailyLife(world);
     S.dailyReligion(world);
     S.dailyPolitics(world);
+    S.dailyPlots(world);
     S.dailyCrises(world);
     S.checkChallenge(world);
     const p = T.dateParts(world);
@@ -158,6 +159,20 @@
         return S.possessedAct(world, cmd.act);
       case 'humanAct':
         return S.humanAct(world, cmd.act);
+      case 'persuade': {
+        const c = S.char(world, cmd.targetId);
+        const p = world.player;
+        if (p.form !== 'human') return { ok: false, msg: 'Persuading someone in person needs human form.' };
+        if (!c || !c.alive || U.dist(c.x, c.y, p.human.x, p.human.y) > 3) return { ok: false, msg: 'Walk up to them first (within 3 tiles).' };
+        if (c.asleep) return { ok: false, msg: `${c.first} is asleep.` };
+        const seditious = ['coup', 'revolt', 'theocracy', 'iron_fist', 'war'].includes(cmd.agenda);
+        if (seditious) {
+          p.human.suspicion = U.clamp(p.human.suspicion + 12 + (['guard', 'soldier', 'official'].includes(c.role) && cmd.agenda !== 'coup' ? 20 : 0), 0, 100);
+        }
+        const r = S.plantAgenda(world, c, cmd.agenda, 'persuade');
+        if (r.success) S.addMemory(world, c, 'talk', 'A persuasive stranger changed their mind about something important.', 1.5);
+        return { ok: true, msg: r.msg };
+      }
       case 'speakGifted': {
         const c = S.char(world, cmd.targetId);
         if (!c || !c.gift) return { ok: false, msg: 'They cannot hear you.' };

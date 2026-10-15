@@ -129,6 +129,7 @@
       neighbors: G.Data.neighbors.map((n) => Object.assign({}, n)),
       church: Object.assign({ id: 'church', leaderId: null, members: 0, founded: -1 }, sc.church),
       movements: [],
+      plots: [],
       prayers: [],
       chronicle: [],
       scheduled: [],

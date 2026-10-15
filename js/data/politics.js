@@ -83,6 +83,23 @@
         { id: 'concede', label: 'Concede border tolls', tags: ['peace', 'mercy'], effects: { warRisk: -40, treasury: -8, legitimacy: -5 }, factions: { nobility: -6, military: -8 } },
       ],
     },
+    declare_war: {
+      title: 'Whether to march on a neighbour',
+      options: [
+        { id: 'war_kesh', label: 'Declare war on the Kesh Dominion', tags: ['war'], effects: { legitimacy: 2 }, factions: { military: 6 }, flag: 'war:kesh' },
+        { id: 'war_ostmark', label: 'Declare war on the Ostmark League', tags: ['war', 'iron'], effects: {}, factions: { military: 4, nobility: 2 }, flag: 'war:ostmark' },
+        { id: 'hold', label: 'Hold back for now', tags: ['peace'], effects: {}, factions: { military: -4 } },
+      ],
+    },
+    iron_rule: {
+      title: 'How hard to grip the realm',
+      options: [
+        { id: 'martial_law', label: 'Impose martial law and arrest dissenters', tags: ['iron', 'order'], effects: {}, factions: { military: 6, reformers: -15, commons: -8 }, flag: 'iron' },
+        { id: 'purge', label: 'Purge the disloyal nobility', tags: ['iron'], effects: {}, factions: { military: 3 }, flag: 'purge' },
+        { id: 'proclamations', label: 'Fill the streets with royal proclamations', tags: ['order'], effects: { legitimacy: 3, treasury: -3 }, factions: {} },
+        { id: 'relent', label: 'Relent and rule gently', tags: ['mercy', 'reform'], effects: { legitimacy: 2, grievance: -5 }, factions: { commons: 4 } },
+      ],
+    },
     famine_relief: {
       title: 'Hunger spreads in the city',
       options: [

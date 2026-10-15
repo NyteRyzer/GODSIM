@@ -26,6 +26,14 @@
         insight: 'Grant an insight',
       },
     },
+    sway: {
+      name: 'Sway', tier: 1, target: 'character', base: 30, range: [25, 160], exposure: 0.1,
+      scope: 'Plant an ambition in someone', desc: 'Whisper an ambition into their dreams. Whether they act on it, and how, is up to them.',
+      options: {
+        war: 'Wage war on a neighbour', iron_fist: 'Rule with an iron fist', coup: 'Seize power in a coup', revolt: 'Rise up against the rulers',
+        theocracy: 'Put the Church in power', reform: 'Push for reform', peace: 'Seek peace', mercy: 'Show mercy to the poor', loyalty: 'Stay loyal to the ruler',
+      },
+    },
     heal: {
       name: 'Heal', tier: 2, target: 'character', base: 50, range: [50, 150], exposure: 1.0,
       scope: 'Resolve a serious injury or condition', desc: 'Mend a body. Witnesses will talk.',

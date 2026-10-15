@@ -189,6 +189,7 @@
       if (o.flags.trapped) acts.push({ id: 'carry', targetId: o.id, label: `Carry ${o.first}'s family to safety` });
     }
     if (world.flood.stage !== 'none' && ['general', 'official', 'monarch', 'heir', 'soldier', 'guard'].includes(c.role) && S.living(world).some((o) => o.flags.trapped)) acts.push({ id: 'rescue', label: 'Order a rescue of the trapped farms' });
+    acts.push(...S.intrigueActions(world, c));
     const pd = world.country.pendingDecision;
     if (pd && pd.leaderId === c.id) for (const o of G.Data.decisions[pd.decisionId].options) acts.push({ id: 'decide', optionId: o.id, label: `Decide: ${o.label}` });
     return acts;
@@ -246,7 +247,9 @@
       outOfCharacter(1);
       return { ok: true, msg: `${c.first} decreed: ${ch.label}.` };
     }
-    return { ok: false, msg: 'Nothing happened.' };
+    const r = S.intrigueAct(world, c, act);
+    if (r.odd) outOfCharacter(r.odd);
+    return r;
   };
 
   // Called every minute while possessing.

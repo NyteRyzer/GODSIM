@@ -192,9 +192,25 @@
     const pr = world.prayers.find((p) => p.requesterId === c.id && p.status === 'pending');
     if (pr) h += `<div class="card clickable" data-prayer="${pr.id}" style="margin-top:8px"><span class="urg urg${pr.urgency}">${S.URGENCY[pr.urgency]}</span> <b>Praying:</b> ${esc(pr.situation)}</div>`;
     // Actions
+    // Ambitions and conspiracies
+    const plot = world.plots.find((pl) => pl.status === 'active' && (pl.leaderId === c.id || pl.members.includes(c.id)) && (pl.known || k.memories));
+    if (c.agenda && (k.traits || c.agenda.byPlayer)) {
+      const def = G.Data.agendas[c.agenda.kind];
+      h += `<h4>Ambition</h4><div>Means to <b>${esc(def ? def.label.toLowerCase() : c.agenda.kind)}</b> <span class="muted small">(${c.agenda.strength > 0.9 ? 'burning' : c.agenda.strength > 0.6 ? 'strong' : 'passing'})</span></div>`;
+    }
+    if (plot) {
+      const lead = S.char(world, plot.leaderId);
+      h += `<div class="card" style="margin-top:6px;border-color:var(--red)"><b>${plot.leaderId === c.id ? 'Leads' : 'Part of'} a ${esc(G.Data.plotKinds[plot.kind].name.toLowerCase())}</b>${plot.leaderId === c.id ? '' : ` led by ${UI.charLink(lead)}`}${UI.meter('Support', plot.support, 'var(--red)', Math.round(plot.support))}</div>`;
+    }
     h += '<h4>Divine actions</h4>';
     const p = world.player;
-    if (p.form === 'human') h += '<div class="muted">You are in human form: no divine abilities. Use the actions at the bottom of the map.</div>';
+    if (p.form === 'human') {
+      h += '<div class="muted">You are in human form: no divine abilities. You can still talk people round.</div>';
+      const near = U.dist(c.x, c.y, p.human.x, p.human.y) <= 3;
+      const opt = UI.state.abilityOptions.persuade || 'coup';
+      h += `<select data-optfor="persuade">${Object.keys(G.Data.agendas).map((a) => `<option value="${a}" ${a === opt ? 'selected' : ''}>${esc(G.Data.agendas[a].label)}</option>`).join('')}</select>
+        <button class="action" data-persuade="${c.id}" ${near && !c.asleep ? '' : 'disabled'}><span>🗣 Persuade in person<span class="sub">${near ? 'Free, but less reliable than a vision. Talk of treason raises suspicion.' : 'Walk within 3 tiles of them first'}</span></span><span class="cost">0</span></button>`;
+    }
     else {
       if (p.form === 'spectral') {
         const cost = S.possessionCost(world, c);
@@ -353,13 +369,33 @@
     h += UI.meter('Coup', c.coupRisk, 'var(--red)');
     h += UI.meter('Revolution', c.revolutionRisk, '#ff7a59');
     h += UI.meter('Theocracy', c.theocracyPressure, '#f5d36c');
+    // Intrigue
+    h += '<h4>Intrigue</h4>';
+    if (c.flags.ironFistUntil > world.t) h += `<div class="card" style="border-color:var(--red)"><b class="red">Martial law</b> for ${T.duration(c.flags.ironFistUntil - world.t)}. Security rises; so does resentment.</div>`;
+    const ruler = S.leader(world);
+    if (ruler && ruler.agenda) h += `<div class="small">${UI.charLink(ruler)} means to <b>${esc((G.Data.agendas[ruler.agenda.kind] || { label: ruler.agenda.kind }).label.toLowerCase())}</b>.</div>`;
+    const plots = world.plots.filter((pl) => pl.status === 'active');
+    if (!plots.length) h += '<div class="muted small">No conspiracy you know of. Use <b>Sway</b> on a person to plant an ambition: a general or noble pushed toward a coup will start recruiting.</div>';
+    for (const pl of plots) {
+      const lead = S.char(world, pl.leaderId);
+      if (!pl.known) {
+        h += `<div class="card"><b>Rumours</b> <span class="muted small">of a ${esc(G.Data.plotKinds[pl.kind].name.toLowerCase())} brewing. Observe the powerful to learn who.</span></div>`;
+        continue;
+      }
+      h += `<div class="card" style="border-color:var(--red)"><b>${esc(G.Data.plotKinds[pl.kind].name)}</b> led by ${UI.charLink(lead)} <span class="muted small">· ${pl.members.length} sworn · since ${T.format(world, pl.startedAt, false)}</span>
+        ${UI.meter('Support', pl.support, 'var(--red)', Math.round(pl.support))}
+        <div class="small muted">Strikes when support is high (around 60+). Each new member raises the risk of discovery. Possess ${esc(lead.first)} to strike now, or a guard to betray it.</div>
+        ${pl.members.length ? `<div class="small">Sworn: ${pl.members.map((m) => UI.charLink(S.char(world, m))).join(', ')}</div>` : ''}</div>`;
+    }
+    const past = world.plots.filter((pl) => pl.status !== 'active' && pl.known).slice(-3).reverse();
+    for (const pl of past) h += `<div class="small muted">${esc(G.Data.plotKinds[pl.kind].name)} of ${esc(S.char(world, pl.leaderId)?.name || '?')}: ${esc(pl.status)}</div>`;
     h += '<h4>Factions</h4><table class="t"><tr><th>Faction</th><th>Leader</th><th>Power</th><th>Approval</th></tr>';
     for (const f of c.factions) h += `<tr><td>${esc(f.name)}</td><td>${UI.charLink(S.char(world, f.leaderId))}</td><td>${U.level5(f.power)}</td><td>${U.level5(f.approval)}</td></tr>`;
     h += '</table>';
     h += '<h4>Foreign affairs</h4>';
     if (world.war) {
       const n = S.neighbor(world, world.war.enemy);
-      h += `<div class="red">At war with ${esc(n.name)} — ${world.war.score > 15 ? 'winning' : world.war.score < -15 ? 'losing' : 'stalemate'} (${world.war.casualties} dead)</div>`;
+      h += `<div class="red">${world.war.aggressor === 'velmora' ? 'Invading' : 'At war with'} ${esc(n.name)}: ${world.war.score > 15 ? 'winning' : world.war.score < -15 ? 'losing' : 'stalemate'} (${world.war.casualties} dead)</div>`;
     }
     for (const n of world.neighbors) h += `<div>${esc(n.name)}: <span class="muted">${n.relation > 30 ? 'friendly' : n.relation > -10 ? 'cool' : 'hostile'}</span></div>`;
     h += UI.meter('War risk', c.warRisk, 'var(--red)');
