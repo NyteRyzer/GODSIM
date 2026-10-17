@@ -159,6 +159,7 @@
       pendingDecision: null, decisionCooldown: T.DAY * 2, flags: {},
     };
 
+    G.Sim.initLife(world);
     G.Sim.populate(world, sc);
     G.Sim.updateTier(world);
     world.faith.current = Math.min(world.faith.current, world.faith.capacity);
@@ -202,6 +203,7 @@
 
   S.addMemory = function (world, c, kind, text, weight = 1) {
     c.memories.push({ t: world.t, kind, text, weight });
+    if (S.watchNotice) S.watchNotice(world, c, text, weight);
     if (c.memories.length > 14) {
       // Forget the least important old memory.
       let idx = 0;

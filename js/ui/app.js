@@ -102,6 +102,19 @@
       S.saveToSlot(w, 'autosave');
     }
     draw(now);
+    if (now - (st.lastAmbient || 0) > 200) {
+      st.lastAmbient = now;
+      const mm = UI.$('#minimap');
+      if (st.view === 'local') {
+        mm.classList.remove('hidden');
+        UI.Atmos.minimap(mm, w);
+      } else mm.classList.add('hidden');
+      if (UI.Sound.on) {
+        const cam = st.camera;
+        const crowd = S.living(w).filter((c) => !c.asleep && Math.abs(c.x - cam.x) < 8 && Math.abs(c.y - cam.y) < 6).length;
+        UI.Sound.update(w, { crowd, river: Math.abs(cam.x - 38) < 8 }, now);
+      }
+    }
     if (st.dirty || now - lastPanel > 400) {
       lastPanel = now;
       st.dirty = false;
@@ -216,11 +229,22 @@
     }
     const t = UI.Local.toTile(p.x, p.y, cssW, cssH);
     st.hover = UI.Local.hitTest(w, t.x, t.y);
-    canvas.title = '';
+    const card = UI.$('#hovercard');
     if (st.hover && st.hover.kind === 'character') {
       const c = S.char(w, st.hover.id);
-      canvas.title = `${c.name} — ${c.occupation}, ${c.activity}`;
-    } else if (st.hover && st.hover.kind === 'building') canvas.title = S.building(w, st.hover.id).name;
+      const pr = w.prayers.find((x) => x.requesterId === c.id && x.status === 'pending');
+      card.innerHTML = `${UI.Figures.portrait(c, 44)}<div><b>${UI.esc(c.name)}</b>${UI.esc(c.occupation)} · ${UI.esc(c.activity)}<br><span class="muted">Mood ${UI.esc(G.Util.level5(c.mood).toLowerCase())}${c.known.beliefs ? ` · belief ${Math.round(c.belief)}` : ''}${c.illness ? ' · <span class="red">ill</span>' : ''}</span>${pr ? `<br><span class="gold">✦ ${UI.esc(pr.situation)}</span>` : ''}</div>`;
+      card.style.left = Math.min(p.x + 16, cssW - 290) + 'px';
+      card.style.top = Math.min(p.y + 16, cssH - 90) + 'px';
+      card.classList.remove('hidden');
+    } else if (st.hover && st.hover.kind === 'building') {
+      const b = S.building(w, st.hover.id);
+      const inside = S.living(w).filter((c) => S.buildingAt(w, c.x, c.y) === b).length;
+      card.innerHTML = `<div><b>${UI.esc(b.name)}</b>${inside} inside${b.protectedUntil > w.t ? ' · <span class="gold">warded</span>' : ''}${b.damage > 20 ? ' · <span class="red">damaged</span>' : ''}</div>`;
+      card.style.left = Math.min(p.x + 16, cssW - 290) + 'px';
+      card.style.top = Math.min(p.y + 16, cssH - 60) + 'px';
+      card.classList.remove('hidden');
+    } else card.classList.add('hidden');
   }
 
   function onKey(e, down) {
@@ -247,6 +271,15 @@
     else if (key === 'e') possessSelected();
     else if (key === 'f') st.camera.follow = true;
     else if (key === 'r') toggleRoofs();
+    else if (key === 'v') {
+      const ks = Object.keys(UI.Atmos.LENSES);
+      st.lens = ks[(ks.indexOf(st.lens || 'none') + 1) % ks.length];
+      UI.toast(`Lens: ${UI.Atmos.LENSES[st.lens]}`);
+    } else if (key === 'n') Sc.herald();
+    else if (key === 'p') document.body.classList.toggle('photo');
+    else if (key === '[') UI.$('#app').classList.toggle('hide-left');
+    else if (key === ']') UI.$('#app').classList.toggle('hide-right');
+    else if (key === '?') Sc.help();
     else if (key === 'c') Sc.chronicle();
     else if (key === '+' || key === '=') zoom(1.2);
     else if (key === '-') zoom(1 / 1.2);
@@ -332,6 +365,14 @@
     }
     if (d.possess) return UI.cmd({ type: 'form', form: 'possession', targetId: +d.possess });
     if (d.whisper) return UI.cmd({ type: 'speakGifted', targetId: +d.whisper });
+    if (d.watch) return UI.cmd({ type: 'watch', targetId: +d.watch });
+    if (d.omen) return UI.cmd({ type: 'claimOmen', omenId: +d.omen, meaning: d.meaning });
+    if (d.lens) {
+      st.lens = d.lens;
+      st.dirty = true;
+      return;
+    }
+    if (d.herald != null) return Sc.herald(+d.herald);
     if (d.persuade) {
       const sel = document.querySelector('select[data-optfor="persuade"]');
       return UI.cmd({ type: 'persuade', targetId: +d.persuade, agenda: sel ? sel.value : 'loyalty' });
@@ -405,6 +446,22 @@
       onCanvasClick(e);
     });
     canvas.addEventListener('contextmenu', onCanvasContext);
+    canvas.addEventListener('mouseleave', () => UI.$('#hovercard').classList.add('hidden'));
+    UI.$('#minimap').addEventListener('click', (e) => {
+      const r = e.target.getBoundingClientRect();
+      st.camera.follow = false;
+      st.camera.x = ((e.clientX - r.left) / r.width) * G.Data.city.width;
+      st.camera.y = ((e.clientY - r.top) / r.height) * G.Data.city.height;
+    });
+    UI.$('#btn-herald').onclick = () => st.world && Sc.herald();
+    UI.$('#btn-help').onclick = () => Sc.help();
+    UI.$('#btn-sound').onclick = () => {
+      const on = UI.Sound.toggle();
+      UI.toast(on ? 'Sound on: wind, rain, bells, birds and the murmur of the market.' : 'Sound off.');
+      st.dirty = true;
+    };
+    UI.$('#btn-left').onclick = () => UI.$('#app').classList.toggle('hide-left');
+    UI.$('#btn-right').onclick = () => UI.$('#app').classList.toggle('hide-right');
     canvas.addEventListener('mousemove', onCanvasMove);
     canvas.addEventListener('mousedown', (e) => {
       if (e.button === 1 || e.shiftKey) {

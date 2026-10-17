@@ -130,6 +130,30 @@
     UI.$('#chron-level').onchange = () => Sc.chronicle(input.value, +UI.$('#chron-level').value);
   };
 
+  // ---------- The Thornhaven Herald ----------
+  Sc.herald = function (index) {
+    const w = UI.state.world;
+    const eds = w.life.herald;
+    w.life.heraldUnread = false;
+    if (!eds.length) {
+      Sc.open(`<div class="herald"><h1>The Thornhaven Herald</h1><p style="text-align:center;margin-top:16px">The first edition goes to press at dawn tomorrow.</p><div class="nav"><span></span><button data-screen="close">Close</button></div></div>`);
+      return;
+    }
+    const i = index == null ? eds.length - 1 : Math.max(0, Math.min(eds.length - 1, index));
+    const e = eds[i];
+    const lead = e.headlines[0];
+    let body = '';
+    if (lead) body += `<article class="lead"><h3>${esc(lead.title)}</h3><p>${esc(lead.text)}</p></article>`;
+    for (const hl of e.headlines.slice(1)) body += `<article><h3>${esc(hl.title)}</h3><p>${esc(hl.text)}</p></article>`;
+    if (!e.headlines.length) body += '<article><h3>A Quiet Day in Thornhaven</h3><p>Nothing of note troubled the city. The bakers baked, the bells rang, and the river kept to its banks.</p></article>';
+    body += `<div class="box"><b>Weather.</b> ${esc(e.season)}, ${esc(e.weather.toLowerCase())}.<br><b>Market.</b> A loaf of bread: ${e.bread} pennies.<br><b>Parish register.</b> ${e.births} born, ${e.deaths} buried.${e.notice ? `<br><b>Coming.</b> ${esc(e.notice)}` : ''}</div>`;
+    if (e.rumours.length) body += `<div class="box"><b>Overheard at the Copper Kettle</b>${e.rumours.map((r) => `<p style="margin-top:4px;font-style:italic">${esc(r)}</p>`).join('')}</div>`;
+    Sc.open(`<div class="herald"><h1>The Thornhaven Herald</h1>
+      <div class="masthead"><span>${esc(e.date)}</span><span>By leave of ${esc(e.ruler)}</span><span>One penny</span></div>
+      <div class="cols">${body}</div>
+      <div class="nav"><button data-herald="${i - 1}" ${i > 0 ? '' : 'disabled'}>‹ Earlier edition</button><button data-screen="close">Close</button><button data-herald="${i + 1}" ${i < eds.length - 1 ? '' : 'disabled'}>Later edition ›</button></div></div>`);
+  };
+
   // ---------- Help ----------
   Sc.help = function () {
     const back = UI.state.world ? 'menu' : 'title';
@@ -139,8 +163,9 @@
       <h4>Prayers</h4><p>People pray from their circumstances. Each prayer can be answered <b>directly</b> (a reliable but costly miracle), <b>indirectly</b> (move a human to act; they may refuse), with a <b>delayed</b> answer, an <b>alternative</b> outcome, or <b>silence</b>. People remember. Unanswered prayers breed doubt — especially where earlier miracles raised expectations.</p>
       <h4>Three forms</h4><p><b>Spectral</b>: drift unseen and observe; only people with <b>The Gift</b> can sense you. <b>Possession</b>: inhabit someone within range to act through them — warn neighbours, carry people from a flood, make a ruler's decision — at a cost and with aftereffects. <b>Human</b>: walk as an ordinary person; talk, help, learn rumours — but no divine powers, and guards, floods and suspicion are real dangers.</p>
       <h4>Politics and intrigue</h4><p>Use <b>Sway</b> on anyone to plant an ambition: war, an iron fist, a coup, revolt, theocracy, reform, peace, mercy or loyalty. People may refuse. A ruler acts on theirs (declaring war, imposing martial law). A general or noble pushed toward a coup starts a <b>conspiracy</b> that recruits allies, can be discovered, and strikes when strong enough. The Nation tab tracks it. In human form you can <b>persuade</b> people for free, at a risk. Possess a ruler to declare war, impose martial law or purge the nobles; possess a plotter to strike now, or a guard to betray the plot.</p>
+      <h4>A living world</h4><p>Seasons turn and weather changes: storms drive people indoors and fog hides your miracles from witnesses. Festivals fill the square, funerals and weddings gather families, omens appear in the sky for you to interpret, and great miracles can leave relics that draw pilgrims. Follow (☆) people to hear about their lives, read the daily <b>Herald</b>, and collect <b>Deeds</b>. Turn on sound with 🔇.</p>
       <h4>Consequences</h4><p>Witnesses interpret miracles through their own beliefs: a protector, a judge, coincidence or fraud. Stories spread through families. Gatherings form, merge into the Church or split from it. Rulers claim your miracles for themselves. Politics responds to legitimacy, corruption, inequality, loyalty and religion — you can tip the balance, never dictate it.</p>
-      <h4>Controls</h4><div class="kv"><div>WASD / arrows</div><div>Move (spirit, vessel, or human body)</div><div>Click</div><div>Select a person, building, prayer or province</div><div>Right-click</div><div>Move to a point</div><div>Mouse wheel</div><div>Zoom</div><div>Space / 1–5</div><div>Pause / speed</div><div>M / L</div><div>World / Local view</div><div>Q / E / H</div><div>Spectral / Possess selected / Human form</div><div>F</div><div>Camera follows you</div><div>R</div><div>Lift all roofs (they also lift when you zoom in or look inside a building)</div><div>C</div><div>Chronicle</div><div>Esc</div><div>Menu</div></div>
+      <h4>Controls</h4><div class="kv"><div>WASD / arrows</div><div>Move (spirit, vessel, or human body)</div><div>Click</div><div>Select a person, building, prayer or province</div><div>Right-click</div><div>Move to a point</div><div>Mouse wheel</div><div>Zoom</div><div>Space / 1–5</div><div>Pause / speed</div><div>M / L</div><div>World / Local view</div><div>Q / E / H</div><div>Spectral / Possess selected / Human form</div><div>F</div><div>Camera follows you</div><div>V</div><div>Cycle lenses: belief, mood, danger, intrigue</div><div>N</div><div>Read the Herald</div><div>P</div><div>Photo mode (hide the interface)</div><div>[ and ]</div><div>Hide or show the side panels</div><div>?</div><div>This help</div><div>R</div><div>Lift all roofs (they also lift when you zoom in or look inside a building)</div><div>C</div><div>Chronicle</div><div>Esc</div><div>Menu</div></div>
       <div style="text-align:right;margin-top:16px"><button class="btn secondary" data-screen="${back}">Back</button></div>`);
   };
 

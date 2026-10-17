@@ -8,7 +8,7 @@
 
   S.serialize = function (world) {
     return JSON.stringify(world, (key, value) => {
-      if (key === 'buildingMap' || key === 'autosaveDue') return undefined;
+      if (key === 'buildingMap' || key === 'autosaveDue' || key.charAt(0) === '_') return undefined;
       return value;
     });
   };
@@ -28,6 +28,7 @@
     rng.state = data.rng && data.rng.state != null ? data.rng.state >>> 0 : (data.seed >>> 0);
     data.rng = rng;
     data.plots = data.plots || []; // saves from before intrigue existed
+    S.initLife(data); // saves from before the living world existed
     data.buildingMap = {};
     for (const b of data.buildings) data.buildingMap[b.id] = b;
     return data;

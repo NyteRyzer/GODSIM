@@ -25,6 +25,7 @@
     const hour = T.hour(world);
     for (const id in world.chars) S.hourlyRoutine(world, world.chars[id], hour);
     S.floodRoutineOverrides(world);
+    S.lifeHourly(world, hour);
     S.floodHourly(world);
     S.generatePrayers(world);
     S.prayersHourly(world);
@@ -42,6 +43,7 @@
     S.dailyPlots(world);
     S.dailyCrises(world);
     S.checkChallenge(world);
+    S.lifeDaily(world);
     const p = T.dateParts(world);
     if (p.month === 0 && p.md === 1) {
       S.yearlyLife(world);
@@ -172,6 +174,14 @@
         const r = S.plantAgenda(world, c, cmd.agenda, 'persuade');
         if (r.success) S.addMemory(world, c, 'talk', 'A persuasive stranger changed their mind about something important.', 1.5);
         return { ok: true, msg: r.msg };
+      }
+      case 'claimOmen':
+        return S.claimOmen(world, cmd.omenId, cmd.meaning);
+      case 'watch': {
+        const c = S.char(world, cmd.targetId);
+        if (!c) return { ok: false, msg: 'No one to watch.' };
+        const on = S.toggleWatch(world, c.id);
+        return { ok: true, msg: on ? `You will follow ${c.first}'s life closely.` : `You stop following ${c.first}.` };
       }
       case 'speakGifted': {
         const c = S.char(world, cmd.targetId);

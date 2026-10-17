@@ -28,7 +28,7 @@
   S.miracleWitnessed = function (world, opts) {
     const rng = world.rng;
     const phil = G.Data.philosophies[world.player.philosophy] || {};
-    const radius = 4 + opts.magnitude * 1.5;
+    const radius = (4 + opts.magnitude * 1.5) * (S.visibility ? S.visibility(world) : 1);
     const ws = S.witnesses(world, opts.x, opts.y, radius, opts.vesselId);
     const district = opts.district || S.districtAt(world, opts.x, opts.y);
     const tally = { protector: 0, judge: 0, coincidence: 0, deceiver: 0, vessel: 0 };
@@ -83,6 +83,7 @@
     const exp = (0.15 * ws.length + 0.3) * opts.magnitude * expMult;
     world.country.exposure = U.clamp(world.country.exposure + exp, 0, 100);
     const believers = tally.protector + tally.judge;
+    if (S.maybeRelic) S.maybeRelic(world, opts, believers + tally.vessel);
     if (ws.length) {
       S.log(world, {
         title: 'Witnesses react',

@@ -86,7 +86,7 @@ button.plain:hover { border-color: var(--gold-dim); }
 #viewport { grid-area: view; position: relative; overflow: hidden; background: #070b16; min-width: 0; min-height: 0; }
 #canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 .view-hint { position: absolute; left: 10px; top: 10px; background: #0b1020cc; border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 10px; font-size: 12px; max-width: 60%; pointer-events: none; }
-.overlay-bar { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 4px; flex-wrap: wrap; max-width: 90%; }
+.overlay-bar { position: absolute; left: 10px; top: 46px; display: flex; gap: 4px; flex-wrap: wrap; max-width: calc(100% - 240px); }
 .overlay-bar button { background: #0b1020dd; border: 1px solid var(--line); border-radius: 12px; padding: 4px 10px; font-size: 11px; color: var(--muted); }
 .overlay-bar button.active { color: var(--gold); border-color: var(--gold-dim); }
 .form-bar { position: absolute; left: 50%; transform: translateX(-50%); bottom: 10px; display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 92%; }
@@ -173,6 +173,8 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
 
 @media (max-width: 1650px) {
   .lbl { display: none; }
+  .tier { display: none; }
+  .sky .fname { display: none; }
   .clock { min-width: 0; }
   #topbar { gap: 7px; }
   .group button { padding: 6px 7px; }
@@ -192,6 +194,44 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
   .grid2, .grid4 { grid-template-columns: 1fr; }
 }
 
+/* ---------- living world UI ---------- */
+.sky { white-space: nowrap; font-size: 12px; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 3px 9px; }
+.sky .fest { color: var(--gold); margin-left: 6px; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 4px; background: var(--red); margin-left: 4px; vertical-align: top; }
+#minimap { position: absolute; right: 26px; top: 10px; border: 1px solid var(--gold-dim); border-radius: 6px; background: #0b1020; cursor: pointer; box-shadow: 0 4px 18px #0009; }
+.edge-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 18px; height: 54px; background: #0b1020cc; border: 1px solid var(--line); color: var(--muted); padding: 0; z-index: 5; }
+.edge-btn.left { left: 0; border-radius: 0 8px 8px 0; }
+.edge-btn.right { right: 0; border-radius: 8px 0 0 8px; }
+.edge-btn:hover { color: var(--gold); }
+#app.hide-left { grid-template-columns: 0 1fr 370px; }
+#app.hide-right { grid-template-columns: 300px 1fr 0; }
+#app.hide-left.hide-right { grid-template-columns: 0 1fr 0; }
+#app.hide-left #left, #app.hide-right #right { display: none; }
+body.photo #topbar, body.photo #left, body.photo #right, body.photo #feed, body.photo .view-hint, body.photo .overlay-bar, body.photo .form-bar, body.photo #minimap, body.photo .edge-btn, body.photo #toasts { display: none !important; }
+body.photo #app { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; grid-template-areas: 'view' !important; }
+.hovercard { position: absolute; pointer-events: none; z-index: 20; background: #0d1426f2; border: 1px solid var(--gold-dim); border-radius: 10px; padding: 8px 10px; display: flex; gap: 10px; align-items: center; box-shadow: 0 8px 24px #000a; max-width: 280px; font-size: 12px; }
+.hovercard b { display: block; font-size: 13px; }
+.relweb { width: 100%; height: auto; display: block; background: #0f1730; border: 1px solid var(--line); border-radius: 8px; }
+details.story summary { cursor: pointer; color: var(--gold); margin: 10px 0 4px; }
+details.story p { margin: 4px 0; line-height: 1.5; }
+.deeds { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.deed { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 11px; color: var(--muted); }
+.deed.got { border-color: var(--gold-dim); color: var(--text); background: #2a2410; }
+.deed b { display: block; font-size: 12px; }
+.herald { background: #efe6cf; color: #2a2116; border-radius: 6px; padding: 22px 26px; font-family: Georgia, 'Times New Roman', serif; }
+.herald h1 { font-family: Georgia, serif; text-align: center; font-size: 34px; letter-spacing: .06em; margin: 0; border-bottom: 3px double #2a2116; padding-bottom: 6px; }
+.herald .masthead { display: flex; justify-content: space-between; font-size: 12px; border-bottom: 1px solid #2a2116; padding: 4px 0; margin-bottom: 12px; }
+.herald .cols { columns: 2 260px; column-gap: 26px; column-rule: 1px solid #b9a986; }
+.herald article { break-inside: avoid; margin-bottom: 12px; }
+.herald article h3 { font-family: Georgia, serif; font-size: 17px; margin: 0 0 3px; line-height: 1.2; }
+.herald article.lead h3 { font-size: 22px; }
+.herald p { margin: 0; font-size: 14px; line-height: 1.45; }
+.herald .box { border: 1px solid #2a2116; padding: 8px; margin-bottom: 12px; break-inside: avoid; font-size: 13px; }
+.herald .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-family: system-ui, sans-serif; }
+.herald .nav button { background: #2a2116; color: #efe6cf; border: 0; border-radius: 6px; padding: 6px 12px; }
+.herald .nav button:disabled { opacity: .35; }
+@media (max-width: 900px) { #minimap, .edge-btn { display: none; } }
+
 </style>
 </head>
 <body style="background:#0b1020;color:#e6e9f2">
@@ -210,6 +250,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       </div>
       <div id="tier" class="tier"></div>
       <div id="clock" class="clock"></div>
+      <div id="sky" class="sky" title="Season and weather"></div>
       <div class="group" id="speed" role="group" aria-label="Time controls">
         <button data-speed="0" title="Pause (Space)">❚❚</button>
         <button data-speed="1" title="Slow (1)">▶</button>
@@ -228,6 +269,9 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
         <button data-form="human" title="Walk as a human (H)">🚶 Human</button>
       </div>
       <div class="spacer"></div>
+      <button id="btn-herald" class="plain" title="The Thornhaven Herald (N)">📰<span class="lbl"> Herald</span><span id="herald-dot" class="dot hidden"></span></button>
+      <button id="btn-sound" class="plain" title="Sound on or off">🔇</button>
+      <button id="btn-help" class="plain" title="Controls (?)">?</button>
       <button id="btn-chronicle" class="plain" title="Chronicle (C)">📜<span class="lbl"> Chronicle</span></button>
       <button id="btn-menu" class="plain" title="Menu (Esc)">☰<span class="lbl"> Menu</span></button>
     </header>
@@ -246,6 +290,10 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       <div id="view-hint" class="view-hint"></div>
       <div id="overlay-bar" class="overlay-bar hidden"></div>
       <div id="form-bar" class="form-bar"></div>
+      <canvas id="minimap" width="180" height="120" title="Minimap: click to look there"></canvas>
+      <button id="btn-left" class="edge-btn left" title="Hide or show the prayer panel ([)">‹</button>
+      <button id="btn-right" class="edge-btn right" title="Hide or show the inspector (])">›</button>
+      <div id="hovercard" class="hovercard hidden"></div>
     </main>
 
     <aside id="right">
@@ -940,6 +988,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       pendingDecision: null, decisionCooldown: T.DAY * 2, flags: {},
     };
 
+    G.Sim.initLife(world);
     G.Sim.populate(world, sc);
     G.Sim.updateTier(world);
     world.faith.current = Math.min(world.faith.current, world.faith.capacity);
@@ -983,6 +1032,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
 
   S.addMemory = function (world, c, kind, text, weight = 1) {
     c.memories.push({ t: world.t, kind, text, weight });
+    if (S.watchNotice) S.watchNotice(world, c, text, weight);
     if (c.memories.length > 14) {
       // Forget the least important old memory.
       let idx = 0;
@@ -1380,6 +1430,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       if (!c.illness) {
         let p = 0.0025 + (c.age > 55 ? 0.004 : 0) + (c.hunger > 60 ? 0.01 : 0);
         if (world.plague.active) p += 0.035;
+        if (S.season && S.season(world).id === 'winter') p *= 1.6;
         if (rng.chance(p * world.settings.crisisFrequency)) {
           c.illness = { name: world.plague.active ? 'the plague' : rng.pick(ILLNESSES), severity: rng.int(20, 55) };
           S.addMemory(world, c, 'illness', `Fell ill with ${c.illness.name}.`, 1);
@@ -1446,6 +1497,10 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       S.addMemory(world, f, 'grief', `Lost ${c.first} to ${cause}.`, 2);
     }
     const level = c.role === 'monarch' || c.key ? 2 : c.age < 16 ? 1 : 0;
+    if (S.scheduleCeremony) {
+      const guests = Object.keys(c.relations).map((k) => S.char(world, +k)).filter((o) => o && o.alive && c.relations[o.id].type !== 'rival');
+      if (guests.length) S.scheduleCeremony(world, 'funeral', [c], guests);
+    }
     S.log(world, { title: `${c.name} has died`, text: `${c.name}, aged ${Math.floor(c.age)}, died of ${cause}.`, level, kind: 'death', entities: [c.id] });
     S.onCharacterDeath(world, c);
   };
@@ -1469,6 +1524,10 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
           S.addMemory(world, o, 'marriage', `Married ${c.first}.`, 2);
           if (c.flags.lonelyPrayer) c.flags.lonelyPrayer = 0;
           S.log(world, { title: 'A wedding', text: `${c.name} married ${o.name}.`, level: 0, kind: 'life', entities: [c.id, o.id] });
+          if (S.scheduleCeremony) {
+            const guests = [...Object.keys(c.relations), ...Object.keys(o.relations)].map((k) => S.char(world, +k)).filter((g) => g && g.alive && g.id !== c.id && g.id !== o.id);
+            S.scheduleCeremony(world, 'wedding', [c, o], [...new Set(guests)]);
+          }
         }
       }
       // Births
@@ -1599,6 +1658,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     // Institutional: the church and organised movements.
     let institution = world.church.strength * 0.03 * (0.5 + country.religiousInfluence / 100);
     for (const m of world.movements) if (m.active) institution += m.strength * 0.02;
+    if (world.life) institution += world.life.relics.length * 0.35;
     // Upkeep
     let upkeep = 0;
     const upkeepItems = [];
@@ -1676,7 +1736,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
   S.miracleWitnessed = function (world, opts) {
     const rng = world.rng;
     const phil = G.Data.philosophies[world.player.philosophy] || {};
-    const radius = 4 + opts.magnitude * 1.5;
+    const radius = (4 + opts.magnitude * 1.5) * (S.visibility ? S.visibility(world) : 1);
     const ws = S.witnesses(world, opts.x, opts.y, radius, opts.vesselId);
     const district = opts.district || S.districtAt(world, opts.x, opts.y);
     const tally = { protector: 0, judge: 0, coincidence: 0, deceiver: 0, vessel: 0 };
@@ -1731,6 +1791,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     const exp = (0.15 * ws.length + 0.3) * opts.magnitude * expMult;
     world.country.exposure = U.clamp(world.country.exposure + exp, 0, 100);
     const believers = tally.protector + tally.judge;
+    if (S.maybeRelic) S.maybeRelic(world, opts, believers + tally.vessel);
     if (ws.length) {
       S.log(world, {
         title: 'Witnesses react',
@@ -1983,6 +2044,11 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     world.faith.miracles++;
     if (world.challenge.status === 'active' && abilityId !== 'subtle_sign' && abilityId !== 'vision' && abilityId !== 'inspire' && abilityId !== 'sway') world.challenge.miracles++;
     const res = EFFECTS[abilityId](world, target, option, ctx) || {};
+    if (S.fx) {
+      const o = target && target.x != null ? (target.w != null ? { x: target.x + target.w / 2, y: target.y + target.h / 2 } : { x: target.x, y: target.y }) : S.playerPos(world);
+      S.fx(world, abilityId, o.x, o.y, { option });
+    }
+    if (abilityId === 'heal') S.count(world, 'heal');
     const msg = res.msg || `${a.name} performed.`;
     S.log(world, { title: `You used ${a.name}`, text: msg, level: a.tier >= 3 ? 2 : 1, kind: 'divine', entities: target && target.id && targetRef.kind === 'character' ? [target.id] : [], cost: check.cost });
     S.prayersAfterAbility(world, abilityId, target, option, targetRef ? targetRef.kind : null);
@@ -3393,6 +3459,420 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
 })((globalThis.GODSIM = globalThis.GODSIM || {}));
 
 </script>
+  <script>/* js/sim/living.js */
+// The living world: seasons, weather, festivals, omens, relics and pilgrims, rumours, ceremonies,
+// the daily Herald, deeds (achievements) and the watchlist.
+(function (G) {
+  'use strict';
+  const S = G.Sim;
+  const U = G.Util;
+  const T = G.Time;
+  const H = S.handlers;
+
+  // ---------- data ----------
+  G.Data.seasons = {
+    spring: { name: 'Spring', months: [1, 2, 3] },
+    summer: { name: 'Summer', months: [4, 5] },
+    autumn: { name: 'Autumn', months: [6, 7, 8] },
+    winter: { name: 'Winter', months: [9, 10, 11, 0] },
+  };
+  G.Data.weather = {
+    clear: { name: 'Clear', icon: '☀', outdoors: 1, visibility: 1 },
+    cloudy: { name: 'Overcast', icon: '☁', outdoors: 0.9, visibility: 1 },
+    rain: { name: 'Rain', icon: '🌧', outdoors: 0.5, visibility: 0.85 },
+    storm: { name: 'Storm', icon: '⛈', outdoors: 0.15, visibility: 0.7 },
+    fog: { name: 'Fog', icon: '🌫', outdoors: 0.8, visibility: 0.5 },
+    snow: { name: 'Snow', icon: '❄', outdoors: 0.6, visibility: 0.8 },
+  };
+  // Markov weights per season: next weather kind
+  const WEATHER_TABLE = {
+    spring: { clear: 4, cloudy: 3, rain: 3, storm: 0.6, fog: 1, snow: 0 },
+    summer: { clear: 7, cloudy: 2, rain: 1.2, storm: 0.8, fog: 0.3, snow: 0 },
+    autumn: { clear: 3, cloudy: 4, rain: 3, storm: 0.7, fog: 2, snow: 0.2 },
+    winter: { clear: 3, cloudy: 4, rain: 1, storm: 0.4, fog: 1.5, snow: 3.5 },
+  };
+  G.Data.festivals = [
+    { id: 'blessing', name: 'Spring Blessing', month: 3, md: 1, place: 'temple', activity: 'at the Spring Blessing', desc: 'Seeds are blessed at the Temple before planting.' },
+    { id: 'fair', name: 'Midsummer Fair', month: 4, md: 15, place: 'market', activity: 'at the Midsummer Fair', desc: 'Stalls, music and dancing fill the Market Square.' },
+    { id: 'harvest', name: 'Harvest Festival', month: 6, md: 20, place: 'market', activity: 'at the Harvest Festival', desc: 'The first sheaves are carried through the streets.' },
+    { id: 'vigil', name: 'Midwinter Vigil', month: 11, md: 15, place: 'temple', activity: 'keeping the Midwinter Vigil', desc: 'Candles burn all night at the Temple.' },
+  ];
+  G.Data.omens = [
+    { id: 'comet', name: 'A comet', text: 'A comet with a burning tail hangs over Thornhaven.', days: 6 },
+    { id: 'eclipse', name: 'An eclipse', text: 'The sun went dark at midday and the birds fell silent.', days: 1 },
+    { id: 'blood_moon', name: 'A blood moon', text: 'The moon rose red as a wound.', days: 2 },
+    { id: 'white_stag', name: 'A white stag', text: 'A white stag was seen at the edge of the North Fields.', days: 2 },
+    { id: 'crows', name: 'A gathering of crows', text: 'Hundreds of crows gathered on the palace roof and would not leave.', days: 2 },
+    { id: 'twin_rainbow', name: 'A double rainbow', text: 'Two rainbows arched over the river at once.', days: 1 },
+  ];
+  G.Data.omenMeanings = {
+    blessing: { label: 'A blessing on the realm', desc: 'Believers take heart; the ruler gains legitimacy.' },
+    warning: { label: 'A warning to be careful', desc: 'Conspirators lose nerve; war fever cools.' },
+    doom: { label: 'Doom for the ruler', desc: 'Legitimacy falls; conspiracies grow bolder.' },
+    calling: { label: 'A prophet will rise', desc: 'The most devout person in the city is called to prophecy.' },
+  };
+  G.Data.deeds = [
+    { id: 'first_miracle', name: 'First Light', desc: 'Perform your first miracle.', check: (w) => w.faith.miracles >= 1 },
+    { id: 'healer', name: 'The Healing Hand', desc: 'Heal five people.', check: (w) => (w.life.counters.heal || 0) >= 5 },
+    { id: 'answered25', name: 'One Who Listens', desc: 'Answer 25 prayers.', check: (w) => w.stats.answered >= 25 },
+    { id: 'answered100', name: 'The Ever-Present', desc: 'Answer 100 prayers.', check: (w) => w.stats.answered >= 100 },
+    { id: 'prophet', name: 'A Voice in the Market', desc: 'See a prophet rise.', check: (w) => S.living(w).some((c) => c.prophet) },
+    { id: 'movement', name: 'Gathered in Your Name', desc: 'Inspire a new religious movement.', check: (w) => w.movements.length > 0 },
+    { id: 'relic', name: 'Holy Relic', desc: 'A relic is enshrined in the Temple.', check: (w) => w.life.relics.length > 0 },
+    { id: 'omen', name: 'Reader of the Sky', desc: 'Interpret an omen for the people.', check: (w) => w.life.omens.some((o) => o.claimed) },
+    { id: 'flood_saved', name: 'The Waters Parted', desc: 'See a flood end with no lives lost.', check: (w) => w.chronicle.some((e) => e.title === 'The flood is over' && /no lives were lost/.test(e.text)) },
+    { id: 'possessed_ruler', name: 'The Hand Behind the Throne', desc: 'Possess the ruler.', check: (w) => w.challenge.possessedRuler || (w.life.counters.possessRuler || 0) > 0 },
+    { id: 'coup', name: 'Kingmaker', desc: 'A conspiracy you encouraged seizes power.', check: (w) => w.plots.some((p) => p.byPlayer && p.status === 'succeeded') },
+    { id: 'war_won', name: 'Lord of Hosts', desc: 'Velmora wins a war.', check: (w) => w.chronicle.some((e) => e.kind === 'war' && e.title === 'Victory') },
+    { id: 'regime', name: 'Turner of Ages', desc: 'Witness a change of government.', check: (w) => w.chronicle.some((e) => e.kind === 'regime' && /→/.test(e.title)) },
+    { id: 'festival', name: 'Joy of the People', desc: 'Watch a festival be celebrated.', check: (w) => (w.life.counters.festivals || 0) > 0 },
+    { id: 'walk', name: 'Among Them', desc: 'Walk among mortals in human form.', check: (w) => (w.life.counters.humanForm || 0) > 0 },
+    { id: 'tier3', name: 'World Shaper', desc: 'Reach the third tier of power.', check: (w) => w.faith.tier >= 3 },
+    { id: 'tier4', name: 'Architect of Creation', desc: 'Reach the highest tier of power.', check: (w) => w.faith.tier >= 4 },
+    { id: 'decade', name: 'A Decade Watched', desc: 'Guide Velmora for ten years.', check: (w) => w.t >= T.DAY * T.YEAR_DAYS * 10 },
+    { id: 'schism', name: 'House Divided', desc: 'See the faithful split in schism.', check: (w) => w.chronicle.some((e) => e.title === 'Schism') },
+    { id: 'herald', name: 'Front Page', desc: 'Your deeds make the Herald\'s headline.', check: (w) => w.life.herald.some((h) => h.headlines.some((x) => x.divine)) },
+  ];
+
+  // ---------- state ----------
+  S.initLife = function (world) {
+    if (world.life) return world.life;
+    world.life = {
+      weather: { kind: 'cloudy', since: world.t, until: world.t + 6 * 60 },
+      festival: null, omens: [], relics: [], rumours: [], herald: [], heraldUnread: false,
+      deeds: {}, watch: [], counters: {}, pilgrimsToday: 0,
+    };
+    return world.life;
+  };
+  S.count = (world, key, n = 1) => {
+    const l = S.initLife(world);
+    l.counters[key] = (l.counters[key] || 0) + n;
+  };
+
+  S.season = function (world) {
+    const m = T.dateParts(world).month;
+    for (const id in G.Data.seasons) if (G.Data.seasons[id].months.includes(m)) return Object.assign({ id }, G.Data.seasons[id]);
+    return { id: 'spring', name: 'Spring' };
+  };
+  S.weather = (world) => G.Data.weather[(world.life && world.life.weather.kind) || 'clear'];
+  S.visibility = (world) => S.weather(world).visibility;
+
+  // Visual effects queue for the UI (transient, never saved: keys starting with "_" are skipped by serialize).
+  S.fx = function (world, kind, x, y, extra) {
+    if (!world._fx) world._fx = [];
+    world._fx.push(Object.assign({ id: (world._fxId = (world._fxId || 0) + 1), kind, x, y, t: world.t }, extra || {}));
+    if (world._fx.length > 40) world._fx.shift();
+  };
+
+  // ---------- weather ----------
+  function rollWeather(world) {
+    const l = world.life;
+    const rng = world.rng;
+    const fl = world.flood.stage;
+    let kind;
+    if (fl === 'warning' || fl === 'rising') kind = rng.chance(0.4) ? 'storm' : 'rain';
+    else if (fl === 'flooding') kind = 'rain';
+    else {
+      const tbl = WEATHER_TABLE[S.season(world).id];
+      const keys = Object.keys(tbl);
+      // Weather tends to persist.
+      kind = rng.chance(0.35) ? l.weather.kind : rng.weighted(keys, (k) => tbl[k]);
+      if (kind === 'snow' && S.season(world).id !== 'winter') kind = 'rain';
+    }
+    const prev = l.weather.kind;
+    l.weather = { kind, since: world.t, until: world.t + rng.int(4, 14) * 60 };
+    if (kind === 'storm' && prev !== 'storm') S.log(world, { title: 'A storm breaks', text: 'Thunder rolls over Thornhaven. People hurry indoors.', level: 1, kind: 'weather' });
+    if (kind === 'snow' && prev !== 'snow') S.log(world, { title: 'Snow', text: 'Snow begins to fall over the rooftops.', level: 0, kind: 'weather' });
+    if (kind === 'fog' && prev !== 'fog') S.log(world, { title: 'Fog rolls in', text: 'A thick fog creeps up from the river. Anything done now will have fewer witnesses.', level: 0, kind: 'weather' });
+  }
+
+  S.lifeHourly = function (world, hour) {
+    const l = S.initLife(world);
+    const rng = world.rng;
+    if (world.t >= l.weather.until) rollWeather(world);
+    const w = S.weather(world);
+    // Storms damage roofs now and then.
+    if (l.weather.kind === 'storm' && rng.chance(0.04)) {
+      const b = rng.pick(world.buildings.filter((x) => x.type !== 'market'));
+      b.damage = U.clamp(b.damage + rng.int(5, 15), 0, 100);
+      S.log(world, { title: 'Storm damage', text: `The wind tore slates from ${b.name}.`, level: 0, kind: 'weather' });
+    }
+    // People react to the sky, to festivals and to ceremonies.
+    const fest = l.festival && l.festival.until > world.t ? l.festival : null;
+    for (const c of S.living(world)) {
+      if (c.possessed || c.flags.trapped || c.flags.evacuating || c.flags.detainedUntil > world.t || c.asleep) continue;
+      const cer = c.flags.ceremony;
+      if (cer && cer.until > world.t) {
+        S.goTo(world, c, cer.place, cer.activity);
+        continue;
+      } else if (cer) c.flags.ceremony = null;
+      if (fest && hour >= 10 && hour < 19 && !(c.illness && c.illness.severity > 40) && rng.chance(fest.muted ? 0.35 : 0.75)) {
+        S.goTo(world, c, fest.place, fest.activity);
+        continue;
+      }
+      const outdoors = ['market', 'tavern'].includes(c.at) && /strolling|lunch|drinking/.test(c.activity);
+      if (outdoors && !rng.chance(w.outdoors)) S.goTo(world, c, c.homeId, 'sheltering from the ' + w.name.toLowerCase());
+    }
+    if (fest && hour === 18 && !fest.pulsed) festivalPulse(world, fest);
+  };
+
+  // ---------- festivals ----------
+  function festivalPulse(world, fest) {
+    fest.pulsed = true;
+    const att = S.living(world).filter((c) => c.at === fest.place && /festival|fair|blessing|vigil/i.test(c.activity));
+    const pulse = Math.round(att.length * (fest.muted ? 0.6 : 1.4));
+    const before = world.faith.current;
+    world.faith.current = U.clamp(world.faith.current + pulse, 0, world.faith.capacity);
+    world.faith.earned += world.faith.current - before;
+    for (const c of att) {
+      c.mood = U.clamp(c.mood + (fest.muted ? 6 : 15), 0, 100);
+      S.adjustBelief(world, c, fest.place === 'temple' ? 2 : 1);
+      if (world.rng.chance(0.3)) S.addMemory(world, c, 'festival', `Celebrated the ${fest.name}.`, 0.8);
+    }
+    world.country.economy = U.clamp(world.country.economy + (fest.place === 'market' ? 1 : 0.3), 0, 100);
+    S.count(world, 'festivals');
+    S.log(world, {
+      title: fest.name, text: `${att.length} people ${fest.muted ? 'gathered quietly, the mood dampened by hard times' : 'celebrated late into the evening'}. (+${pulse} Faith)`,
+      level: 2, kind: 'festival',
+    });
+  }
+
+  // ---------- omens ----------
+  function newOmen(world) {
+    const rng = world.rng;
+    const def = rng.pick(G.Data.omens);
+    const o = { id: world.nextId++, kind: def.id, name: def.name, text: def.text, t: world.t, until: world.t + T.DAY * def.days, claimed: null };
+    world.life.omens.push(o);
+    if (world.life.omens.length > 30) world.life.omens.shift();
+    // Unclaimed, people read it through their own hopes and fears.
+    for (const c of S.living(world)) {
+      if (c.belief > 55) c.mood = U.clamp(c.mood + (rng.chance(0.5) ? 4 : -4), 0, 100);
+      if (rng.chance(0.15)) S.addMemory(world, c, 'omen', `Saw ${def.name.toLowerCase()}. ${c.belief > 50 ? 'Wonders what heaven is saying.' : 'Thinks it means nothing.'}`, 0.8);
+    }
+    S.fx(world, 'omen', 30, 8, { omen: def.id });
+    S.log(world, { title: `An omen: ${def.name}`, text: `${def.text} Everyone argues about what it means. (Open the Divinity tab to interpret it.)`, level: 2, kind: 'omen', alert: true });
+  }
+
+  S.claimOmen = function (world, omenId, meaning) {
+    const o = world.life.omens.find((x) => x.id === omenId);
+    if (!o || o.claimed || o.until < world.t) return { ok: false, msg: 'That omen has passed.' };
+    if (world.player.form === 'human') return { ok: false, msg: 'In human form you are just one voice among many.' };
+    const cost = Math.round(40 * (world.settings.costMultiplier || 1));
+    if (!S.spendFaith(world, cost, 'Interpret omen')) return { ok: false, msg: `Not enough Faith (${cost}).` };
+    const c = world.country;
+    o.claimed = meaning;
+    let text;
+    if (meaning === 'blessing') {
+      for (const p of S.living(world)) if (p.belief > 35) S.adjustBelief(world, p, 4);
+      c.legitimacy = U.clamp(c.legitimacy + 4, 0, 100);
+      text = 'Priests and gossips agree: heaven smiles on Velmora.';
+    } else if (meaning === 'warning') {
+      for (const pl of world.plots) if (pl.status === 'active') pl.boost -= 10;
+      c.warRisk = U.clamp(c.warRisk - 10, 0, 100);
+      text = 'A chill of caution passes through the city. Bold plans are put away.';
+    } else if (meaning === 'doom') {
+      c.legitimacy = U.clamp(c.legitimacy - 10, 0, 100);
+      c.grievance = U.clamp((c.grievance || 0) + 8, 0, 100);
+      for (const pl of world.plots) if (pl.status === 'active') pl.boost += 15;
+      text = `Whispers spread that the omen foretells the fall of ${S.leader(world) ? S.leader(world).name : 'the ruler'}.`;
+    } else {
+      const cand = S.living(world).filter((p) => !p.prophet && p.age >= 16).sort((a, b) => b.belief - a.belief)[0];
+      if (cand) {
+        cand.prophet = true;
+        S.addMemory(world, cand, 'vision', `Understood the ${o.name.toLowerCase()} as a call to prophecy.`, 3);
+        text = `${cand.name} declared that the omen called them to prophesy.`;
+      } else text = 'No one answered the call.';
+    }
+    world.country.exposure = U.clamp(world.country.exposure + 1, 0, 100);
+    S.log(world, { title: `The meaning of ${o.name.toLowerCase()}`, text, level: 2, kind: 'omen' });
+    S.checkDeeds(world);
+    return { ok: true, msg: text, cost };
+  };
+
+  // ---------- relics & pilgrims ----------
+  S.maybeRelic = function (world, opts, witnesses) {
+    if (opts.magnitude < 2 || witnesses < 2 || !world.rng.chance(0.35)) return;
+    const ben = S.char(world, opts.beneficiaryId);
+    const names = {
+      heal: ben ? `The Healing Cloth of ${ben.first}` : 'The Healing Cloth',
+      protect: 'A Stone from the Spared House',
+      regional: 'A Vial of the Stilled River',
+      provide: 'The Loaf That Did Not Spoil',
+      reveal: 'The Ledger of Shame',
+      smite: 'The Scorched Staff',
+    };
+    const name = names[opts.kind] || 'A Holy Token';
+    if (world.life.relics.some((r) => r.name === name)) return;
+    world.life.relics.push({ id: world.nextId++, name, origin: opts.text, t: world.t });
+    S.log(world, { title: 'A relic is enshrined', text: `${name} was carried to the Temple and placed beside the altar. Pilgrims will come to see it.`, level: 2, kind: 'religion' });
+  };
+
+  // ---------- rumours ----------
+  const first = (e) => e.text.split('.')[0];
+  const DISTORT = [
+    (e) => `They say "${e.title}", and that it was worse than anyone admits.`,
+    (e) => `Word in the Copper Kettle: ${first(e)}. Some say it was arranged.`,
+    (e) => `A fishwife swears it's true: ${first(e)}. And she saw a light in the sky that night.`,
+    (e) => `Everyone is talking about "${e.title}". The priests call it a sign; the scholars call it nonsense.`,
+    (e) => `It's said that ${first(e)}, though the Herald won't print the half of it.`,
+  ];
+  function spreadRumours(world) {
+    const l = world.life;
+    const recent = world.chronicle.filter((e) => e.t > world.t - T.DAY && e.level >= 2 && !['weather', 'deed', 'divine'].includes(e.kind));
+    for (const e of recent.slice(-2)) {
+      l.rumours.push({ t: world.t, text: world.rng.pick(DISTORT)(e), source: e.id });
+    }
+    if (l.rumours.length > 30) l.rumours.splice(0, l.rumours.length - 30);
+  }
+  S.latestRumour = (world) => {
+    const r = world.life && world.life.rumours;
+    return r && r.length ? r[r.length - 1].text : '';
+  };
+
+  // ---------- the Herald ----------
+  function printHerald(world) {
+    const l = world.life;
+    const since = world.t - T.DAY;
+    const today = world.chronicle.filter((e) => e.t > since && e.level >= 2 && e.kind !== 'weather');
+    const headlines = today.slice(-6).reverse().map((e) => ({ title: e.title, text: e.text, divine: e.kind === 'divine' || /miracle|witness/i.test(e.title + e.text) }));
+    const births = world.chronicle.filter((e) => e.t > since && /born/.test(e.text)).length;
+    const deaths = world.chronicle.filter((e) => e.t > since && e.kind === 'death').length;
+    const bread = Math.max(1, Math.round(2 + (60 - world.country.economy) / 8 + (world.country.flags.famine ? 6 : 0)));
+    const next = G.Data.festivals.map((f) => ({ f, d: daysUntil(world, f) })).sort((a, b) => a.d - b.d)[0];
+    l.herald.push({
+      t: world.t, date: T.format(world, world.t, false), headlines, rumours: l.rumours.slice(-2).map((r) => r.text),
+      weather: S.weather(world).name, season: S.season(world).name, bread, births, deaths,
+      notice: next ? `${next.f.name} in ${next.d} day${next.d === 1 ? '' : 's'}.` : '',
+      ruler: S.leader(world) ? S.leader(world).name : 'No ruler',
+    });
+    if (l.herald.length > 14) l.herald.shift();
+    l.heraldUnread = true;
+  }
+  function daysUntil(world, f) {
+    const p = T.dateParts(world);
+    const today = p.month * 30 + p.md;
+    const day = f.month * 30 + f.md;
+    return ((day - today + T.YEAR_DAYS) % T.YEAR_DAYS) || T.YEAR_DAYS;
+  }
+
+  // ---------- daily ----------
+  S.lifeDaily = function (world) {
+    const l = S.initLife(world);
+    const rng = world.rng;
+    const p = T.dateParts(world);
+    const season = S.season(world).id;
+    // Season effects
+    for (const c of S.living(world)) {
+      if (season === 'summer') c.mood = U.clamp(c.mood + 0.5, 0, 100);
+      if (season === 'winter' && c.wealth < 15) c.health = U.clamp(c.health - 0.6, 0, 100);
+      if (p.month === 6 && c.role === 'farmer') c.wealth = U.clamp(c.wealth + 1.5, 0, 100);
+    }
+    if (p.month === 6) world.country.economy = U.clamp(world.country.economy + 0.05, 0, 100);
+    // Festivals
+    if (l.festival && l.festival.until <= world.t) l.festival = null;
+    const fest = G.Data.festivals.find((f) => f.month === p.month && f.md === p.md);
+    if (fest) {
+      const muted = world.plague.active || !!world.war || world.flood.stage !== 'none' || world.country.flags.famine;
+      l.festival = Object.assign({}, fest, { until: world.t + T.DAY, muted, pulsed: false });
+      S.log(world, { title: `${fest.name} today`, text: `${fest.desc}${muted ? ' Hard times hang over the celebrations.' : ''}`, level: 2, kind: 'festival', alert: true });
+    }
+    // Omens
+    if (rng.chance(0.012)) newOmen(world);
+    // Pilgrims come to see relics.
+    l.pilgrimsToday = l.relics.length ? Math.round(l.relics.length * rng.float(1, 4) * (world.war || world.plague.active ? 0.3 : 1)) : 0;
+    if (l.pilgrimsToday) {
+      world.country.economy = U.clamp(world.country.economy + l.pilgrimsToday * 0.02, 0, 100);
+      for (const m of S.living(world).filter((c) => c.role === 'merchant' || c.role === 'innkeeper')) m.wealth = U.clamp(m.wealth + l.pilgrimsToday * 0.15, 0, 100);
+      if (T.weekday(world) === 6) S.log(world, { title: 'Pilgrims', text: `${l.pilgrimsToday} pilgrims came to pray before the relics this week's end.`, level: 0, kind: 'religion' });
+    }
+    spreadRumours(world);
+    printHerald(world);
+    S.checkDeeds(world);
+  };
+
+  // ---------- ceremonies ----------
+  S.scheduleCeremony = function (world, type, about, guests) {
+    const hour = type === 'funeral' ? 10 : 14;
+    const now = T.minuteOfDay(world);
+    let delay = hour * 60 - now;
+    if (delay < 60) delay += T.DAY;
+    S.schedule(world, delay, 'ceremony', { type, about: about.map((c) => c.id), guests: guests.map((c) => c.id) });
+  };
+  H.ceremony = function (world, d) {
+    const about = d.about.map((id) => S.char(world, id)).filter(Boolean);
+    const guests = d.guests.map((id) => S.char(world, id)).filter((c) => c && c.alive && !(c.flags.detainedUntil > world.t) && !c.flags.trapped && !c.possessed);
+    if (!about.length) return;
+    const names = about.map((c) => c.first).join(' and ');
+    const activity = d.type === 'funeral' ? `mourning ${names}` : `celebrating the wedding of ${names}`;
+    for (const g of guests) {
+      g.flags.ceremony = { place: 'temple', activity, until: world.t + 150 };
+      S.goTo(world, g, 'temple', activity);
+    }
+    for (const c of about) if (c.alive) {
+      c.flags.ceremony = { place: 'temple', activity: 'getting married', until: world.t + 150 };
+      S.goTo(world, c, 'temple', 'getting married');
+    }
+    if (d.type === 'funeral') {
+      for (const g of guests) g.mood = U.clamp(g.mood + 4, 0, 100); // grief shared is lighter
+      S.log(world, { title: `The funeral of ${about[0].name}`, text: `${guests.length} mourners gathered at the Temple to bury ${about[0].first}.`, level: about[0].key || about[0].role === 'monarch' ? 2 : 0, kind: 'life', entities: [about[0].id] });
+    } else {
+      for (const g of guests) g.mood = U.clamp(g.mood + 8, 0, 100);
+      S.log(world, { title: 'A wedding at the Temple', text: `${guests.length} guests danced at the wedding of ${names}.`, level: 0, kind: 'life', entities: about.map((c) => c.id) });
+    }
+  };
+
+  // ---------- deeds ----------
+  S.checkDeeds = function (world) {
+    const l = S.initLife(world);
+    for (const d of G.Data.deeds) {
+      if (l.deeds[d.id]) continue;
+      let ok = false;
+      try {
+        ok = d.check(world);
+      } catch (e) {
+        ok = false;
+      }
+      if (ok) {
+        l.deeds[d.id] = world.t;
+        S.log(world, { title: `Deed: ${d.name}`, text: d.desc, level: 1, kind: 'deed', alert: true });
+      }
+    }
+  };
+
+  // ---------- watchlist ----------
+  S.toggleWatch = function (world, id) {
+    const l = S.initLife(world);
+    const i = l.watch.indexOf(id);
+    if (i >= 0) l.watch.splice(i, 1);
+    else l.watch.push(id);
+    return i < 0;
+  };
+  S.watchNotice = function (world, c, text, weight) {
+    if (!world.life || weight < 2 || !world.life.watch.includes(c.id)) return;
+    S.log(world, { title: `${c.first}: news`, text, level: 1, kind: 'watch', entities: [c.id], alert: true });
+  };
+
+  // ---------- life story ----------
+  S.lifeStory = function (world, c) {
+    const born = T.format(world, c.bornAt, false);
+    const parts = [];
+    const fam = S.familyOf(world, c);
+    const parents = fam.filter((f) => c.relations[f.id].type === 'parent');
+    parts.push(`${c.first} ${c.last} was born ${parents.length ? `to ${parents.map((p) => p.first).join(' and ')} ` : ''}around ${born.split(' ').slice(1).join(' ')}.`);
+    parts.push(`${c.sex === 'f' ? 'She' : 'He'} ${c.alive ? 'works as' : 'worked as'} ${/^[aeiou]/i.test(c.occupation) ? 'an' : 'a'} ${c.occupation.toLowerCase()}${c.tags.length ? ` and is known to be ${c.tags.slice(0, 2).join(' and ').toLowerCase()}` : ''}.`);
+    const sp = Object.keys(c.relations).map((k) => ({ o: S.char(world, +k), r: c.relations[k] })).find((x) => x.o && x.r.type === 'spouse');
+    if (sp) parts.push(`${c.sex === 'f' ? 'She' : 'He'} married ${sp.o.first}${sp.o.alive ? '' : ', who has since died'}.`);
+    const kids = fam.filter((f) => c.relations[f.id].type === 'child');
+    if (kids.length) parts.push(`${kids.length === 1 ? 'One child' : kids.length + ' children'}: ${kids.map((k) => k.first).join(', ')}.`);
+    const key = c.memories.filter((m) => m.weight >= 2).slice(-5);
+    for (const m of key) parts.push(`In ${T.MONTHS[T.dateParts(world, m.t).month]} ${T.dateParts(world, m.t).year}: ${m.text.charAt(0).toLowerCase() + m.text.slice(1)}`);
+    if (c.divine.answered) parts.push(`Heaven has answered ${c.divine.answered} of ${c.sex === 'f' ? 'her' : 'his'} prayers.`);
+    if (!c.alive) parts.push(`${c.first} died of ${c.causeOfDeath}, aged ${Math.floor(c.age)}.`);
+    return parts;
+  };
+})((globalThis.GODSIM = globalThis.GODSIM || {}));
+
+</script>
   <script>/* js/sim/prayers.js */
 // Prayers: generated by people from their circumstances and beliefs; resolved by the player or by the world.
 // Response types: direct, indirect, delayed, silence, alternative.
@@ -4194,6 +4674,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       if (p.human.cooldownUntil > world.t) return { ok: false, msg: `Your mortal form needs ${T.duration(p.human.cooldownUntil - world.t)} to re-form.` };
       if (S.inRiver(p.x, p.y)) return { ok: false, msg: 'You cannot take form over the river.' };
       p.form = 'human';
+      S.count(world, 'humanForm');
       p.human.x = p.x;
       p.human.y = p.y;
       p.human.health = Math.max(p.human.health, 60);
@@ -4258,7 +4739,11 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     c.known.memories = true;
     world.stats.possessions++;
     c.divine.possessed++;
-    if (c.id === world.country.leaderId) world.challenge.possessedRuler = true;
+    if (c.id === world.country.leaderId) {
+      world.challenge.possessedRuler = true;
+      S.count(world, 'possessRuler');
+    }
+    S.fx(world, 'possess', c.x, c.y);
     S.recomputeFaithRates(world);
     S.log(world, { title: `You possess ${c.first}`, text: `You slip into ${c.name}. You see what they see, and know what they know.`, level: 1, kind: 'divine', entities: [c.id], cost });
     return { ok: true, msg: `You are inside ${c.name}.` };
@@ -4566,6 +5051,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     const hour = T.hour(world);
     for (const id in world.chars) S.hourlyRoutine(world, world.chars[id], hour);
     S.floodRoutineOverrides(world);
+    S.lifeHourly(world, hour);
     S.floodHourly(world);
     S.generatePrayers(world);
     S.prayersHourly(world);
@@ -4583,6 +5069,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     S.dailyPlots(world);
     S.dailyCrises(world);
     S.checkChallenge(world);
+    S.lifeDaily(world);
     const p = T.dateParts(world);
     if (p.month === 0 && p.md === 1) {
       S.yearlyLife(world);
@@ -4714,6 +5201,14 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
         if (r.success) S.addMemory(world, c, 'talk', 'A persuasive stranger changed their mind about something important.', 1.5);
         return { ok: true, msg: r.msg };
       }
+      case 'claimOmen':
+        return S.claimOmen(world, cmd.omenId, cmd.meaning);
+      case 'watch': {
+        const c = S.char(world, cmd.targetId);
+        if (!c) return { ok: false, msg: 'No one to watch.' };
+        const on = S.toggleWatch(world, c.id);
+        return { ok: true, msg: on ? `You will follow ${c.first}'s life closely.` : `You stop following ${c.first}.` };
+      }
       case 'speakGifted': {
         const c = S.char(world, cmd.targetId);
         if (!c || !c.gift) return { ok: false, msg: 'They cannot hear you.' };
@@ -4744,7 +5239,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
 
   S.serialize = function (world) {
     return JSON.stringify(world, (key, value) => {
-      if (key === 'buildingMap' || key === 'autosaveDue') return undefined;
+      if (key === 'buildingMap' || key === 'autosaveDue' || key.charAt(0) === '_') return undefined;
       return value;
     });
   };
@@ -4764,6 +5259,7 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     rng.state = data.rng && data.rng.state != null ? data.rng.state >>> 0 : (data.seed >>> 0);
     data.rng = rng;
     data.plots = data.plots || []; // saves from before intrigue existed
+    S.initLife(data); // saves from before the living world existed
     data.buildingMap = {};
     for (const b of data.buildings) data.buildingMap[b.id] = b;
     return data;
@@ -6496,6 +6992,616 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
 })((globalThis.GODSIM = globalThis.GODSIM || {}));
 
 </script>
+  <script>/* js/ui/atmosphere.js */
+// Atmosphere for the Local View: seasons, sky light, weather, wildlife, boats, pilgrims, festivals,
+// speech bubbles, prayer lights, miracle effects, lenses, the minimap and the soundscape.
+// Presentation only: nothing here changes the simulation, and its randomness never touches the sim RNG.
+(function (G) {
+  'use strict';
+  const UI = G.UI;
+  const S = G.Sim;
+  const U = G.Util;
+  const T = G.Time;
+  const A = (UI.Atmos = {});
+
+  const city = () => G.Data.city;
+  const hourF = (world) => T.minuteOfDay(world) / 60;
+
+  // ---------- ground layer touches (drawn over terrain, under people) ----------
+  A.ground = function (ctx, world, sx, sy, ts, now) {
+    const c = city();
+    const season = S.season(world).id;
+    const wk = world.life ? world.life.weather.kind : 'clear';
+    const mapW = c.width * ts, mapH = c.height * ts;
+    // Seasonal colour of the land
+    if (season === 'winter') {
+      ctx.fillStyle = `rgba(235,242,255,${wk === 'snow' ? 0.32 : 0.16})`;
+      ctx.fillRect(sx(0), sy(0), mapW, mapH);
+    } else if (season === 'autumn') {
+      ctx.fillStyle = 'rgba(200,120,40,0.08)';
+      ctx.fillRect(sx(0), sy(0), mapW, mapH);
+    } else if (season === 'spring') {
+      // blossom petals drifting over the grass
+      ctx.fillStyle = 'rgba(255,200,225,0.7)';
+      for (let i = 0; i < 40; i++) {
+        const x = (i * 7.13 + now / 4000) % c.width, y = (i * 3.97 + Math.sin(now / 1500 + i) * 0.4) % c.height;
+        ctx.fillRect(sx(x), sy(y), Math.max(1.5, ts * 0.07), Math.max(1.5, ts * 0.07));
+      }
+    }
+    if (wk === 'rain' || wk === 'storm') {
+      ctx.fillStyle = 'rgba(40,60,90,0.08)';
+      ctx.fillRect(sx(0), sy(0), mapW, mapH);
+    }
+    const hour = hourF(world);
+    const day = hour >= 6 && hour < 19;
+    // Boats on the river
+    if (world.flood.stage === 'none' && wk !== 'storm') {
+      for (let i = 0; i < 2; i++) {
+        const y = ((now / (9000 + i * 4000) + i * 0.5) % 1) * c.height;
+        const x = c.river.x0 + 0.8 + i * 1.2;
+        const bx = sx(x), by = sy(y);
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.beginPath();
+        ctx.ellipse(bx + 3, by + 3, ts * 0.22, ts * 0.55, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#6b4a2c';
+        ctx.beginPath();
+        ctx.ellipse(bx, by, ts * 0.2, ts * 0.52, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#efe6d2';
+        ctx.beginPath();
+        ctx.moveTo(bx, by - ts * 0.35);
+        ctx.lineTo(bx + ts * 0.35, by + ts * 0.1);
+        ctx.lineTo(bx, by + ts * 0.1);
+        ctx.closePath();
+        ctx.fill();
+        // wake
+        ctx.strokeStyle = 'rgba(220,235,255,0.35)';
+        ctx.beginPath();
+        ctx.moveTo(bx - ts * 0.15, by - ts * 0.6);
+        ctx.lineTo(bx - ts * 0.3, by - ts * 1.2);
+        ctx.moveTo(bx + ts * 0.15, by - ts * 0.6);
+        ctx.lineTo(bx + ts * 0.3, by - ts * 1.2);
+        ctx.stroke();
+      }
+    }
+    // Chickens in the farmyards by day
+    if (day && wk !== 'storm') {
+      for (const b of world.buildings) {
+        if (b.type !== 'farmhouse' || S.isFlooded(world, b.x + 1, b.y + 1)) continue;
+        for (let k = 0; k < 3; k++) {
+          const t = now / 1700 + k * 2.1 + b.x;
+          const x = b.x + b.w + 0.2 + ((Math.sin(t) + 1) / 2) * 0.3;
+          const y = b.y + 0.4 + k * 0.8 + Math.cos(t * 1.3) * 0.15;
+          ctx.fillStyle = k === 2 ? '#a0522d' : '#f4efe4';
+          ctx.beginPath();
+          ctx.ellipse(sx(x), sy(y), ts * 0.11, ts * 0.08, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#d9412b';
+          ctx.fillRect(sx(x) + ts * 0.05, sy(y) - ts * 0.08, ts * 0.04, ts * 0.04);
+        }
+      }
+    }
+    // Festival bunting and lanterns
+    const fest = world.life && world.life.festival && world.life.festival.until > world.t ? world.life.festival : null;
+    if (fest) {
+      const b = S.building(world, fest.place);
+      const cols = ['#d94b3a', '#f2c94c', '#3f8a4a', '#2f6fb8', '#e8913a'];
+      for (let row = 0; row < 3; row++) {
+        const y = b.y + 0.6 + row * (b.h - 1.2) / 2;
+        ctx.strokeStyle = 'rgba(60,40,20,0.7)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(sx(b.x), sy(y));
+        for (let x = b.x; x <= b.x + b.w; x += 0.5) ctx.lineTo(sx(x), sy(y + Math.sin((x - b.x) / b.w * Math.PI) * 0.25));
+        ctx.stroke();
+        for (let x = b.x + 0.25, i = 0; x < b.x + b.w; x += 0.5, i++) {
+          const yy = y + Math.sin((x - b.x) / b.w * Math.PI) * 0.25;
+          ctx.fillStyle = cols[(i + row) % cols.length];
+          ctx.beginPath();
+          ctx.moveTo(sx(x - 0.15), sy(yy));
+          ctx.lineTo(sx(x + 0.15), sy(yy));
+          ctx.lineTo(sx(x), sy(yy + 0.3));
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    }
+  };
+
+  // ---------- pilgrims walking to the Temple ----------
+  const PILGRIM_LOOK = { skin: '#d9a07a', hair: '#3b2618', style: 'short', main: '#7a6248', accent: '#c9a24a', garment: 'robe', trousers: '#3a3128', beard: true, balding: false, hat: 'hood', apron: false };
+  A.pilgrims = function (ctx, world, sx, sy, ts, now) {
+    const n = Math.min(6, (world.life && world.life.pilgrimsToday) || 0);
+    const h = hourF(world);
+    if (!n || h < 8 || h > 17) return;
+    const u = ts / 20;
+    for (let i = 0; i < n; i++) {
+      const t = ((now / 40000 + i / n) % 1);
+      // walk in from the west gate along the main road, then down to the temple door
+      const x = t < 0.6 ? 0.5 + (t / 0.6) * 17.5 : 18.5;
+      const y = t < 0.6 ? 9.6 + (i % 2) * 0.4 : 9.8 + ((t - 0.6) / 0.4) * 9.5;
+      UI.Figures.draw(ctx, { id: -200 - i, first: 'Pilgrim', last: '', age: 40, role: 'pilgrim', mood: 70 }, sx(x), sy(y), u, { now, moving: true, facing: t < 0.6 ? 1 : -1, look: PILGRIM_LOOK });
+    }
+  };
+
+  // ---------- lenses ----------
+  A.LENSES = { none: 'No lens', belief: 'Belief', mood: 'Mood', danger: 'Danger', intrigue: 'Intrigue' };
+  A.lens = function (ctx, world, people, sx, sy, ts) {
+    const mode = UI.state.lens || 'none';
+    if (mode === 'none') return;
+    const plotters = new Set();
+    for (const pl of world.plots) if (pl.status === 'active') [pl.leaderId, ...pl.members].forEach((id) => plotters.add(id));
+    for (const c of people) {
+      let col = null;
+      if (mode === 'belief') col = c.known.beliefs ? UI.beliefColor(c.belief) : 'rgba(150,150,170,0.6)';
+      else if (mode === 'mood') col = `hsl(${Math.round(c.mood * 1.2)},70%,50%)`;
+      else if (mode === 'danger') {
+        const d = Math.max(c.flags.trapped ? 100 : 0, c.illness ? c.illness.severity : 0, c.injury, c.hunger, c.flags.detainedUntil > world.t ? 70 : 0);
+        if (d > 20) col = `rgba(230,60,50,${0.3 + d / 160})`;
+      } else if (mode === 'intrigue') {
+        if (plotters.has(c.id)) col = 'rgba(220,40,40,0.85)';
+        else if (c.agenda) col = 'rgba(170,110,230,0.8)';
+      }
+      if (!col) continue;
+      const g = ctx.createRadialGradient(sx(c.x), sy(c.y), 0, sx(c.x), sy(c.y), ts * 0.9);
+      g.addColorStop(0, col);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(sx(c.x), sy(c.y), ts * 0.9, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  };
+
+  // ---------- sky: birds and omens (drawn above roofs) ----------
+  A.sky = function (ctx, world, W, H, now) {
+    const h = hourF(world);
+    const wk = world.life ? world.life.weather.kind : 'clear';
+    if (h > 6 && h < 19 && wk !== 'storm' && wk !== 'snow') {
+      for (let f = 0; f < 2; f++) {
+        const p = ((now / (26000 + f * 9000)) + f * 0.45) % 1;
+        const fx = -100 + p * (W + 200), fy = H * (0.2 + f * 0.35) + Math.sin(now / 3000 + f) * 30;
+        ctx.strokeStyle = 'rgba(30,30,35,0.75)';
+        ctx.lineWidth = 1.5;
+        for (let b = 0; b < 6; b++) {
+          const bx = fx - (b % 3) * 14 - Math.floor(b / 3) * 7, by = fy + (b % 3) * 7 * (b < 3 ? 1 : -1);
+          const flap = Math.sin(now / 120 + b) * 3;
+          ctx.beginPath();
+          ctx.moveTo(bx - 5, by - flap);
+          ctx.lineTo(bx, by);
+          ctx.lineTo(bx + 5, by - flap);
+          ctx.stroke();
+        }
+      }
+    }
+    const omen = world.life && world.life.omens.find((o) => o.until > world.t);
+    if (omen) {
+      if (omen.kind === 'comet') {
+        const x = W * 0.72, y = H * 0.14;
+        const g = ctx.createLinearGradient(x, y, x - 220, y - 70);
+        g.addColorStop(0, 'rgba(255,240,200,0.95)');
+        g.addColorStop(1, 'rgba(255,200,120,0)');
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 7;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - 220, y - 70);
+        ctx.stroke();
+        ctx.fillStyle = '#fffbe8';
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (omen.kind === 'blood_moon' && (h > 19 || h < 5)) {
+        ctx.fillStyle = 'rgba(190,40,30,0.9)';
+        ctx.beginPath();
+        ctx.arc(W * 0.85, H * 0.12, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(120,10,10,0.15)';
+        ctx.fillRect(0, 0, W, H);
+      } else if (omen.kind === 'eclipse' && h > 10 && h < 15) {
+        ctx.fillStyle = 'rgba(0,0,10,0.45)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = 'rgba(255,240,200,0.9)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(W * 0.85, H * 0.12, 20, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (omen.kind === 'twin_rainbow' && h > 7 && h < 18) {
+        for (const [r, a] of [[260, 0.35], [300, 0.2]]) {
+          ['#e33', '#f93', '#fd3', '#3c3', '#39f', '#93f'].forEach((col, i) => {
+            ctx.strokeStyle = col;
+            ctx.globalAlpha = a;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.arc(W * 0.5, H + 40, r - i * 5, Math.PI, Math.PI * 2);
+            ctx.stroke();
+          });
+        }
+        ctx.globalAlpha = 1;
+      }
+    }
+  };
+
+  // ---------- light: dawn, day, dusk, night, weather ----------
+  A.grade = function (ctx, world, W, H) {
+    const h = hourF(world);
+    let night = 0;
+    if (h >= 21 || h < 4.5) night = 1;
+    else if (h >= 4.5 && h < 7) night = 1 - (h - 4.5) / 2.5;
+    else if (h >= 18 && h < 21) night = (h - 18) / 3;
+    // warm light at the edges of the day
+    const dawn = h >= 5 && h < 8 ? 1 - Math.abs(h - 6.5) / 1.5 : 0;
+    const dusk = h >= 16.5 && h < 20 ? 1 - Math.abs(h - 18.2) / 1.8 : 0;
+    if (dawn > 0) {
+      ctx.fillStyle = `rgba(255,150,130,${0.16 * dawn})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (dusk > 0) {
+      ctx.fillStyle = `rgba(255,130,40,${0.2 * dusk})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (night > 0) {
+      ctx.fillStyle = `rgba(8,14,44,${0.55 * night})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+    const wk = world.life ? world.life.weather.kind : 'clear';
+    const gloom = { cloudy: 0.06, rain: 0.12, storm: 0.24, fog: 0.04, snow: 0.06 }[wk] || 0;
+    if (gloom) {
+      ctx.fillStyle = `rgba(40,48,60,${gloom})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+    if (S.season(world).id === 'winter') {
+      ctx.fillStyle = 'rgba(120,160,220,0.06)';
+      ctx.fillRect(0, 0, W, H);
+    }
+    return night;
+  };
+
+  // ---------- weather ----------
+  let flashUntil = 0;
+  A.weather = function (ctx, world, W, H, now) {
+    const wk = world.life ? world.life.weather.kind : 'clear';
+    if (wk === 'rain' || wk === 'storm') {
+      const n = wk === 'storm' ? 260 : 150;
+      ctx.strokeStyle = `rgba(190,210,240,${wk === 'storm' ? 0.35 : 0.25})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 0; i < n; i++) {
+        const x = ((i * 97.3 + now * (wk === 'storm' ? 0.6 : 0.35)) % (W + 60)) - 30;
+        const y = ((i * 53.7 + now * 0.9) % (H + 40)) - 20;
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - (wk === 'storm' ? 8 : 4), y + 12);
+      }
+      ctx.stroke();
+      if (wk === 'storm') {
+        if (now > flashUntil + 4000 && Math.random() < 0.006) flashUntil = now + 140;
+        if (now < flashUntil) {
+          ctx.fillStyle = 'rgba(235,240,255,0.55)';
+          ctx.fillRect(0, 0, W, H);
+          if (UI.Sound) UI.Sound.thunder();
+        }
+      }
+    } else if (wk === 'snow') {
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      for (let i = 0; i < 160; i++) {
+        const x = ((i * 71.7 + Math.sin(now / 900 + i) * 20 + now * 0.02) % (W + 20)) - 10;
+        const y = ((i * 37.3 + now * 0.05) % (H + 20)) - 10;
+        ctx.beginPath();
+        ctx.arc(x, y, 1 + (i % 3) * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (wk === 'fog') {
+      for (let i = 0; i < 7; i++) {
+        const x = ((i * 260 + now / 60) % (W + 600)) - 300, y = (i * 137) % H;
+        const g = ctx.createRadialGradient(x, y, 10, x, y, 260);
+        g.addColorStop(0, 'rgba(225,230,238,0.45)');
+        g.addColorStop(1, 'rgba(225,230,238,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(x - 260, y - 260, 520, 520);
+      }
+      ctx.fillStyle = 'rgba(220,225,235,0.18)';
+      ctx.fillRect(0, 0, W, H);
+    }
+  };
+
+  // ---------- speech bubbles ----------
+  const bubbles = [];
+  let nextBubble = 0;
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  function lineFor(world, c) {
+    const wk = world.life ? world.life.weather.kind : 'clear';
+    const fest = world.life && world.life.festival && world.life.festival.until > world.t;
+    if (c.flags.trapped) return pick(['Help! The water!', 'Someone, please!', 'Hold on to me!']);
+    if (c.flags.ceremony && c.flags.ceremony.until > world.t) return /mourn/.test(c.flags.ceremony.activity) ? pick(['A good soul, gone.', 'Rest now.', 'I can\'t believe it.']) : pick(['To the happy couple!', 'May they be blessed!', 'Another round!']);
+    if (fest && /festival|fair|blessing|vigil/i.test(c.activity)) return pick(['What a day!', 'Pass the cider!', 'Blessings on us all!', 'Dance with me!', 'Light a candle for me.']);
+    if (/preaching/.test(c.activity)) return pick(['Repent, the light is watching!', 'I have seen it with my own eyes!', 'Heaven walks among us!']);
+    if (c.illness && c.illness.severity > 30) return pick(['I feel terrible…', '*cough* *cough*', 'My head is burning.']);
+    if (c.hunger > 50) return pick(['When did I last eat?', 'Bread costs a fortune.', 'My children are hungry.']);
+    if (c.flags.grief) return pick(['I miss them.', 'Why did they have to go?']);
+    if (world.prayers.some((p) => p.status === 'pending' && p.requesterId === c.id)) return pick(['Please, hear me…', 'Are you there?', 'Just a sign. Anything.']);
+    if (c.agenda && Math.random() < 0.5) {
+      const a = { war: 'Kesh needs teaching a lesson.', iron_fist: 'This city needs a firm hand.', coup: 'The army deserves better masters.', revolt: 'Our day is coming.', theocracy: 'Only the Church can save us.', reform: 'We need a charter of rights.', peace: 'No more war, I say.', mercy: 'We must look after the poor.', loyalty: 'Long live the Crown.' }[c.agenda.kind];
+      if (a) return a;
+    }
+    if (wk === 'rain' || wk === 'storm') return pick(['This rain…', 'Soaked through again.', 'The river will rise.']);
+    if (wk === 'snow') return pick(['Cold enough to freeze the river.', 'Look, snow!']);
+    if (wk === 'fog') return pick(['Can\'t see a thing.', 'Who goes there?']);
+    if (Math.random() < 0.25 && S.latestRumour(world)) return '"' + S.latestRumour(world).slice(0, 70) + (S.latestRumour(world).length > 70 ? '…"' : '"');
+    if (c.role === 'merchant' && c.activity === 'working') return pick(['Fresh bread! Fresh bread!', 'Best cloth in Velmora!', 'Two for a penny!']);
+    if (c.role === 'farmer' && c.activity === 'working') return pick(['Good soil this year.', 'Steady now…']);
+    if (c.role === 'guard' || c.role === 'soldier') return pick(['Move along.', 'Keep the peace.']);
+    if (c.role === 'child') return pick(['Catch me!', 'Tag, you\'re it!', 'Mama!']);
+    if (c.belief > 75) return pick(['Heaven watches over us.', 'Praise the Unseen Flame.']);
+    if (c.belief < 20) return pick(['Prayers won\'t fix this.', 'Superstition, all of it.']);
+    return pick(['Good day.', 'Lovely weather.', 'Did you hear?', 'Busy, busy.', 'Hmm.']);
+  }
+  A.bubbles = function (ctx, world, people, sx, sy, ts, u, now, covered) {
+    if (ts < 20 || UI.state.speed > 4) return;
+    if (now > nextBubble && bubbles.length < 4) {
+      nextBubble = now + 900 + Math.random() * 900;
+      const cands = people.filter((c) => !c.asleep && !covered(c) && c.age >= 4 && !bubbles.some((b) => b.id === c.id));
+      const c = cands.length ? cands[Math.floor(Math.random() * cands.length)] : null;
+      if (c) bubbles.push({ id: c.id, text: lineFor(world, c), until: now + 3800 });
+    }
+    ctx.font = `${Math.min(13, Math.max(10, ts * 0.36))}px sans-serif`;
+    ctx.textAlign = 'center';
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      const b = bubbles[i];
+      const c = S.char(world, b.id);
+      if (!c || !c.alive || now > b.until || covered(c)) {
+        bubbles.splice(i, 1);
+        continue;
+      }
+      const x = sx(c.x), y = sy(c.y) - UI.Figures.headTop(c, u) - 12;
+      const tw = Math.min(ctx.measureText(b.text).width, 220);
+      const fade = Math.min(1, (b.until - now) / 400);
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = 'rgba(250,247,238,0.95)';
+      ctx.strokeStyle = 'rgba(40,30,20,0.6)';
+      ctx.lineWidth = 1;
+      const bx = x - tw / 2 - 7, by = y - 18, bw = tw + 14, bh = 20;
+      ctx.beginPath();
+      ctx.moveTo(bx + 6, by);
+      ctx.arcTo(bx + bw, by, bx + bw, by + bh, 6);
+      ctx.arcTo(bx + bw, by + bh, bx, by + bh, 6);
+      ctx.lineTo(x + 5, by + bh);
+      ctx.lineTo(x, by + bh + 6);
+      ctx.lineTo(x - 3, by + bh);
+      ctx.arcTo(bx, by + bh, bx, by, 6);
+      ctx.arcTo(bx, by, bx + bw, by, 6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#2a2018';
+      ctx.fillText(b.text, x, by + 14, 220);
+      ctx.globalAlpha = 1;
+    }
+  };
+
+  // ---------- prayer lights rising toward heaven ----------
+  A.prayerLights = function (ctx, world, sx, sy, ts, u, now) {
+    const h = hourF(world);
+    for (const p of world.prayers) {
+      if (p.status !== 'pending') continue;
+      const c = S.char(world, p.requesterId);
+      if (!c || !c.alive) continue;
+      for (let k = 0; k < (p.urgency >= 3 ? 4 : 2); k++) {
+        const t = ((now / 2600) + k / 3 + c.id * 0.13) % 1;
+        const x = sx(c.x) + Math.sin(now / 500 + k + c.id) * ts * 0.25;
+        const y = sy(c.y) - UI.Figures.headTop(c, u) - t * ts * 2.4;
+        const a = (1 - t) * (h > 19 || h < 6 ? 0.95 : 0.7);
+        const g = ctx.createRadialGradient(x, y, 0, x, y, ts * 0.22);
+        const col = p.urgency >= 3 ? '255,140,120' : '255,225,150';
+        g.addColorStop(0, `rgba(${col},${a})`);
+        g.addColorStop(1, `rgba(${col},0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, ts * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  };
+
+  // ---------- miracle effects ----------
+  const parts = [];
+  let lastFx = 0;
+  const FX_COL = { heal: '255,220,120', protect: '255,210,90', provide: '255,230,160', vision: '190,150,255', sway: '170,110,230', inspire: '255,160,80', inspire_leader: '255,180,90', smite: '220,230,255', reveal: '255,240,200', regional: '200,230,255', national: '255,230,180', global: '255,255,255', subtle_sign: '255,255,220', possess: '255,210,120' };
+  function spawn(world, fx) {
+    const col = FX_COL[fx.kind] || '255,230,160';
+    const big = ['regional', 'national', 'global'].includes(fx.kind);
+    const n = big ? 120 : fx.kind === 'subtle_sign' ? 12 : 40;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, sp = (big ? 3 : 1) * (0.3 + Math.random() * 1.2);
+      parts.push({ x: fx.x, y: fx.y, vx: Math.cos(a) * sp * (fx.kind === 'heal' ? 0.3 : 1), vy: Math.sin(a) * sp * (fx.kind === 'heal' ? 0.3 : 1) - (fx.kind === 'heal' ? 1.4 : 0), life: 1, decay: 0.012 + Math.random() * 0.01, col, size: big ? 0.25 : 0.12 });
+    }
+    parts.push({ ring: true, x: fx.x, y: fx.y, r: 0, vr: big ? 0.5 : fx.kind === 'protect' ? 0.12 : 0.18, life: 1, decay: 0.012, col });
+    if (fx.kind === 'smite') parts.push({ bolt: true, x: fx.x, y: fx.y, life: 1, decay: 0.05, col });
+    if (UI.Sound) UI.Sound.chime(fx.kind);
+  }
+  A.fx = function (ctx, world, sx, sy, ts) {
+    for (const f of world._fx || []) if (f.id > lastFx) {
+      lastFx = f.id;
+      spawn(world, f);
+    }
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.life -= p.decay;
+      if (p.life <= 0) {
+        parts.splice(i, 1);
+        continue;
+      }
+      if (p.ring) {
+        p.r += p.vr;
+        ctx.strokeStyle = `rgba(${p.col},${p.life * 0.8})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(sx(p.x), sy(p.y), p.r * ts, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (p.bolt) {
+        ctx.strokeStyle = `rgba(${p.col},${p.life})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        let x = sx(p.x), y = -10;
+        ctx.moveTo(x, y);
+        while (y < sy(p.y)) {
+          y += 30;
+          x += (Math.random() - 0.5) * 40;
+          ctx.lineTo(x, Math.min(y, sy(p.y)));
+        }
+        ctx.stroke();
+      } else {
+        p.x += p.vx * 0.05;
+        p.y += p.vy * 0.05;
+        p.vy += 0.01;
+        ctx.fillStyle = `rgba(${p.col},${p.life})`;
+        ctx.beginPath();
+        ctx.arc(sx(p.x), sy(p.y), p.size * ts * (0.5 + p.life), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.restore();
+  };
+
+  // ---------- minimap ----------
+  A.minimap = function (canvas, world) {
+    if (!canvas || !UI.Local.terrain) return;
+    const g = canvas.getContext('2d');
+    const c = city();
+    const W = canvas.width, H = canvas.height;
+    const kx = W / c.width, ky = H / c.height;
+    g.drawImage(UI.Local.terrain, 0, 0, W, H);
+    for (const b of world.buildings) {
+      g.fillStyle = b.type === 'market' ? '#8c8273' : UI.Scenery.roofColor(b);
+      g.fillRect(b.x * kx, b.y * ky, b.w * kx, b.h * ky);
+    }
+    if (world.flood.level > 0) {
+      const z = world.flood.diverted ? c.northFields : c.floodplain;
+      g.fillStyle = 'rgba(70,120,200,0.6)';
+      g.fillRect(z.x0 * kx, z.y0 * ky, (z.x1 - z.x0 + 1) * world.flood.level * kx, (z.y1 - z.y0 + 1) * ky);
+    }
+    const pend = new Set(world.prayers.filter((p) => p.status === 'pending').map((p) => p.requesterId));
+    for (const ch of S.living(world)) {
+      g.fillStyle = ch.flags.trapped ? '#ff5a4a' : pend.has(ch.id) ? '#ffd27a' : 'rgba(255,255,255,0.8)';
+      g.fillRect(ch.x * kx - 1, ch.y * ky - 1, 2.5, 2.5);
+    }
+    const st = UI.state;
+    const vw = A._view;
+    if (vw) {
+      g.strokeStyle = '#e0b341';
+      g.lineWidth = 1.5;
+      g.strokeRect(vw.x0 * kx, vw.y0 * ky, (vw.x1 - vw.x0) * kx, (vw.y1 - vw.y0) * ky);
+    }
+    const pos = S.playerPos(world);
+    g.fillStyle = '#fff6c8';
+    g.beginPath();
+    g.arc(pos.x * kx, pos.y * ky, 3.5, 0, Math.PI * 2);
+    g.fill();
+    void st;
+  };
+
+  // ---------- soundscape (WebAudio, procedural, off until the player turns it on) ----------
+  const Sound = (UI.Sound = { on: false });
+  let ac = null, nodes = null, lastBell = 0, lastBird = 0, lastCricket = 0, lastThunder = 0;
+  function noiseBuffer(ctx) {
+    const b = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+    const d = b.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < d.length; i++) {
+      const w = Math.random() * 2 - 1;
+      last = (last + 0.02 * w) / 1.02; // brown-ish noise
+      d[i] = last * 3.5;
+    }
+    return b;
+  }
+  function loop(ctx, buf, type, freq, q) {
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    const f = ctx.createBiquadFilter();
+    f.type = type;
+    f.frequency.value = freq;
+    f.Q.value = q || 0.7;
+    const g = ctx.createGain();
+    g.gain.value = 0;
+    src.connect(f).connect(g).connect(ctx.destination);
+    src.start();
+    return g;
+  }
+  Sound.toggle = function () {
+    try {
+      if (!ac) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return false;
+        ac = new AC();
+        const buf = noiseBuffer(ac);
+        nodes = { wind: loop(ac, buf, 'lowpass', 400), rain: loop(ac, buf, 'highpass', 1200), crowd: loop(ac, buf, 'bandpass', 600, 1.5), river: loop(ac, buf, 'bandpass', 250, 0.6) };
+      }
+      Sound.on = !Sound.on;
+      if (Sound.on) ac.resume();
+      else ac.suspend();
+      return Sound.on;
+    } catch (e) {
+      return false;
+    }
+  };
+  function tone(freq, dur, vol, type, glideTo) {
+    if (!ac || !Sound.on) return;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, ac.currentTime);
+    if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, ac.currentTime + dur);
+    g.gain.setValueAtTime(vol, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+    o.connect(g).connect(ac.destination);
+    o.start();
+    o.stop(ac.currentTime + dur + 0.05);
+  }
+  Sound.chime = function (kind) {
+    if (kind === 'smite') return Sound.thunder(true);
+    [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => tone(f, 1.2, 0.05, 'sine'), i * 90));
+  };
+  Sound.thunder = function (force) {
+    if (!ac || !Sound.on) return;
+    const now = performance.now();
+    if (!force && now - lastThunder < 3000) return;
+    lastThunder = now;
+    tone(70, 2.2, 0.25, 'sawtooth', 30);
+  };
+  Sound.update = function (world, near, now) {
+    if (!ac || !Sound.on || !nodes) return;
+    const wk = world.life ? world.life.weather.kind : 'clear';
+    const h = hourF(world);
+    const set = (g, v) => g.gain.setTargetAtTime(v, ac.currentTime, 0.6);
+    set(nodes.wind, wk === 'storm' ? 0.35 : wk === 'snow' ? 0.18 : 0.06);
+    set(nodes.rain, wk === 'storm' ? 0.22 : wk === 'rain' ? 0.12 : 0);
+    set(nodes.crowd, Math.min(0.12, near.crowd * 0.012));
+    set(nodes.river, near.river ? 0.08 : 0.02);
+    // Temple bells on Restday mornings, at festivals and funerals
+    const bellTime = (T.isRestday(world) && h >= 8.8 && h < 9.2) || (world.life && world.life.festival && h >= 9.8 && h < 10.2);
+    if (bellTime && now - lastBell > 2500) {
+      lastBell = now;
+      tone(392, 3, 0.09, 'triangle');
+      setTimeout(() => tone(330, 3, 0.07, 'triangle'), 700);
+    }
+    if (h > 5.5 && h < 18 && wk !== 'storm' && wk !== 'rain' && now - lastBird > 1800 + Math.random() * 4000) {
+      lastBird = now;
+      const f = 2200 + Math.random() * 1600;
+      tone(f, 0.12, 0.025, 'sine', f * 1.3);
+      setTimeout(() => tone(f * 1.1, 0.1, 0.02, 'sine', f * 1.5), 150);
+    }
+    if ((h > 20.5 || h < 4.5) && S.season(world).id !== 'winter' && now - lastCricket > 600) {
+      lastCricket = now;
+      tone(4200, 0.05, 0.012, 'square');
+    }
+  };
+})((globalThis.GODSIM = globalThis.GODSIM || {}));
+
+</script>
   <script>/* js/ui/local.js */
 // Local View: the explorable city rendered on a 2D canvas.
 // Layers: terrain -> interiors -> flood -> people -> roofs (smart cutaway) -> overlays -> night & weather -> markers.
@@ -6570,14 +7676,6 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     return null;
   };
 
-  function nightAlpha(world) {
-    const m = G.Time.minuteOfDay(world) / 60;
-    if (m >= 7 && m <= 18) return 0;
-    if (m > 18 && m < 21) return ((m - 18) / 3) * 0.5;
-    if (m >= 21 || m < 5) return 0.5;
-    return ((7 - m) / 2) * 0.5;
-  }
-
   // Which roofs are lifted: zoomed in, cutaway mode, or the building holds what you are looking at.
   function updateRoofs(world, pos) {
     const st = UI.state;
@@ -6607,8 +7705,15 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     layers();
     const pos = S.playerPos(world);
     if (st.camera.follow) {
-      st.camera.x = pos.x;
-      st.camera.y = pos.y;
+      // Glide after the player; snap on long jumps.
+      const dx = pos.x - st.camera.x, dy = pos.y - st.camera.y;
+      if (Math.abs(dx) + Math.abs(dy) > 10) {
+        st.camera.x = pos.x;
+        st.camera.y = pos.y;
+      } else {
+        st.camera.x += dx * 0.18;
+        st.camera.y += dy * 0.18;
+      }
     }
     const city = G.Data.city;
     // Keep the map filling the viewport where possible.
@@ -6658,11 +7763,15 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       ctx.setLineDash([]);
     }
     UI.Scenery.drawLampPosts(ctx, L.lamps, sx, sy, ts);
+    UI.Atmos.ground(ctx, world, sx, sy, ts, now);
+    UI.Atmos._view = { x0: -ox / ts, y0: -oy / ts, x1: (W - ox) / ts, y1: (H - oy) / ts };
 
     // People (figures only; markers are drawn later so they stay readable over roofs and at night)
     const r = Math.max(3, ts * 0.3);
     const u = ts / 20; // figure units -> pixels
     const people = S.living(world).sort((a, b) => a.y - b.y);
+    UI.Atmos.lens(ctx, world, people, sx, sy, ts);
+    UI.Atmos.pilgrims(ctx, world, sx, sy, ts, now);
     const onScreen = [];
     for (const c of people) {
       const x = sx(c.x), y = sy(c.y);
@@ -6734,15 +7843,11 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       }
     }
 
-    // Night, lights and weather
-    const nightA = nightAlpha(world);
-    if (nightA > 0) {
-      ctx.fillStyle = `rgba(8,14,40,${nightA})`;
-      ctx.fillRect(0, 0, W, H);
-      UI.Scenery.drawLights(ctx, world, L.lamps, sx, sy, ts, nightA * 2, now);
-    }
-    const fs = world.flood.stage;
-    if (fs === 'warning' || fs === 'rising' || fs === 'flooding') UI.Scenery.drawRain(ctx, W, H, now, fs === 'warning' ? 0.5 : 1);
+    // Sky, light and weather
+    UI.Atmos.sky(ctx, world, W, H, now);
+    const night = UI.Atmos.grade(ctx, world, W, H);
+    if (night > 0) UI.Scenery.drawLights(ctx, world, L.lamps, sx, sy, ts, night, now);
+    UI.Atmos.weather(ctx, world, W, H, now);
 
     // Player
     const px = sx(pos.x), py = sy(pos.y);
@@ -6836,6 +7941,14 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
         ctx.fillText(c.first, x, ly);
       }
     }
+
+    // Living touches: rising prayers, speech, miracle effects
+    UI.Atmos.prayerLights(ctx, world, sx, sy, ts, u, now);
+    UI.Atmos.bubbles(ctx, world, onScreen, sx, sy, ts, u, now, (c) => {
+      const b = S.buildingAt(world, c.x, c.y);
+      return b && roofA(b.id) > 0.6;
+    });
+    UI.Atmos.fx(ctx, world, sx, sy, ts);
 
     // Building name plaques
     if (ts >= 16) {
@@ -7373,6 +8486,11 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     UI.$('#tier').textContent = `${tier.title}`;
     const p = T.dateParts(world);
     UI.$('#clock').innerHTML = `${T.WEEKDAYS[p.weekday]}, ${T.format(world)}`;
+    const wx = S.weather(world);
+    const fest = world.life.festival && world.life.festival.until > world.t ? world.life.festival : null;
+    UI.$('#sky').innerHTML = `${esc(S.season(world).name)} · ${wx.icon} ${esc(wx.name)}${fest ? `<span class="fest" title="${esc(fest.name)}">🎉<span class="fname"> ${esc(fest.name)}</span></span>` : ''}`;
+    UI.$('#herald-dot').classList.toggle('hidden', !world.life.heraldUnread);
+    UI.$('#btn-sound').textContent = UI.Sound && UI.Sound.on ? '🔊' : '🔇';
     UI.$$('#speed button').forEach((b) => b.classList.toggle('active', +b.dataset.speed === UI.state.speed));
     UI.$$('#views button').forEach((b) => b.classList.toggle('active', b.dataset.view === UI.state.view));
     UI.$$('#forms button').forEach((b) => b.classList.toggle('active', b.dataset.form === world.player.form));
@@ -7493,8 +8611,9 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     const dist = U.dist(c.x, c.y, pos.x, pos.y);
     const place = (S.building(world, c.at) || G.Data.city.zones.find((z) => z.id === c.at) || { name: S.districtName(S.districtAt(world, c.x, c.y)) }).name;
     let h = `<div style="display:flex;gap:10px;align-items:center">${UI.Figures.portrait(c, 60)}<div><h3>${esc(c.name)}</h3>
-      <div class="muted">${c.sex === 'f' ? 'Woman' : 'Man'}, ${Math.floor(c.age)} · ${esc(c.occupation)}${c.alive ? '' : ` · <span class="red">died of ${esc(c.causeOfDeath)}</span>`}</div></div></div>`;
-    if (!c.alive) return h + memoriesHtml(world, c, true);
+      <div class="muted">${c.sex === 'f' ? 'Woman' : 'Man'}, ${Math.floor(c.age)} · ${esc(c.occupation)}${c.alive ? '' : ` · <span class="red">died of ${esc(c.causeOfDeath)}</span>`}</div>
+      <button class="chip ${world.life.watch.includes(c.id) ? 'active' : ''}" data-watch="${c.id}" style="margin-top:5px">${world.life.watch.includes(c.id) ? '★ Following' : '☆ Follow'}</button></div></div>`;
+    if (!c.alive) return h + lifeStoryHtml(world, c) + memoriesHtml(world, c, true);
     h += `<div style="margin-top:6px">${esc(capital(c.activity))} at ${esc(place)}${c.asleep ? ' (asleep)' : ''}</div>`;
     const tags = [];
     if (c.flags.trapped) tags.push('<span class="tag warn">Trapped by flood</span>');
@@ -7563,9 +8682,34 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     h += family.map(relRow).join('') || '<div class="muted small">No family.</div>';
     if (k.traits) h += others.map(relRow).join('');
     else if (others.length) h += '<div class="unknown small">Friends and rivals unknown.</div>';
+    if (rels.length) h += relWeb(world, c, k.traits ? rels : family);
+    h += lifeStoryHtml(world, c);
     h += memoriesHtml(world, c, k.memories);
     return h;
   };
+  // A small web of relationships around the person.
+  function relWeb(world, c, rels) {
+    const W = 330, H = 190, cx = W / 2, cy = H / 2;
+    const list = rels.slice(0, 12);
+    const col = { spouse: '#e0b341', parent: '#7ab36a', child: '#7ab36a', sibling: '#7ab36a', friend: '#5b8def', rival: '#e2564f', colleague: '#a77be0' };
+    let svg = `<svg class="relweb" viewBox="0 0 ${W} ${H}" role="img" aria-label="Relationships">`;
+    list.forEach((x, i) => {
+      const a = (i / list.length) * Math.PI * 2 - Math.PI / 2;
+      const px = cx + Math.cos(a) * 120, py = cy + Math.sin(a) * 66;
+      svg += `<line x1="${cx}" y1="${cy}" x2="${px}" y2="${py}" stroke="${col[x.r.type] || '#8f9ab5'}" stroke-width="${1 + x.r.affinity / 40}" stroke-opacity="${x.o.alive ? 0.9 : 0.35}" ${x.r.type === 'rival' ? 'stroke-dasharray="4 3"' : ''}/>`;
+    });
+    list.forEach((x, i) => {
+      const a = (i / list.length) * Math.PI * 2 - Math.PI / 2;
+      const px = cx + Math.cos(a) * 120, py = cy + Math.sin(a) * 66;
+      svg += `<g data-char="${x.o.id}" style="cursor:pointer"><circle cx="${px}" cy="${py}" r="14" fill="${x.o.alive ? UI.roleColor(x.o) : '#3a4560'}" stroke="#0b1020" stroke-width="2"/><text x="${px}" y="${py + 26}" fill="#e6e9f2" font-size="10" text-anchor="middle">${esc(x.o.first)}${x.o.alive ? '' : ' †'}</text></g>`;
+    });
+    svg += `<circle cx="${cx}" cy="${cy}" r="18" fill="${UI.roleColor(c)}" stroke="#e0b341" stroke-width="2.5"/><text x="${cx}" y="${cy + 4}" fill="#0b1020" font-size="10" font-weight="700" text-anchor="middle">${esc(c.first)}</text></svg>`;
+    return svg + '<div class="small muted">Gold: spouse · green: family · blue: friend · red dashes: rival</div>';
+  }
+  function lifeStoryHtml(world, c) {
+    if (!c.known.memories && c.alive) return '';
+    return `<details class="story"><summary>📖 Life story</summary>${S.lifeStory(world, c).map((s) => `<p>${esc(s)}</p>`).join('')}</details>`;
+  }
   function capital(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
   }
@@ -7747,6 +8891,20 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     h += `<div class="kv"><div>Reserve</div><div>${Math.floor(f.current)} / ${f.capacity}</div><div>Net income</div><div>${f.rates.net.toFixed(2)} / hour</div><div>Total earned</div><div>${Math.floor(f.earned)}</div><div>Total spent</div><div>${Math.floor(f.spent)}</div><div>Divine renown</div><div>${Math.floor(f.renown || 0)}</div></div>`;
     h += '<h4>Path of power</h4>';
     for (const t of G.Data.tiers) h += `<div class="${f.tier >= t.tier ? '' : 'muted'}">${f.tier >= t.tier ? '✔' : '○'} <b>${esc(t.title)}</b> <span class="small">(${t.earned} renown, capacity ${t.capacity})</span><div class="small muted">${esc(t.unlocks)}</div></div>`;
+    const l = world.life;
+    const omens = l.omens.filter((o) => o.until > world.t);
+    h += '<h4>Omens</h4>';
+    if (!omens.length) h += '<div class="muted small">The sky is quiet. Comets, eclipses and strange beasts appear now and then; you can tell people what they mean.</div>';
+    for (const o of omens) {
+      h += `<div class="card"><b>${esc(o.name)}</b><div class="small">${esc(o.text)}</div>`;
+      if (o.claimed) h += `<div class="small gold">You declared it ${esc(G.Data.omenMeanings[o.claimed].label.toLowerCase())}.</div>`;
+      else for (const m in G.Data.omenMeanings) h += `<button class="action" data-omen="${o.id}" data-meaning="${m}" ${world.faith.current >= 40 && world.player.form !== 'human' ? '' : 'disabled'}><span>${esc(G.Data.omenMeanings[m].label)}<span class="sub">${esc(G.Data.omenMeanings[m].desc)}</span></span><span class="cost">40</span></button>`;
+      h += '</div>';
+    }
+    h += '<h4>Relics</h4>' + (l.relics.length ? l.relics.map((r) => `<div class="card"><b>✧ ${esc(r.name)}</b><div class="small muted">Enshrined ${T.format(world, r.t, false)}, after ${esc(r.origin)}.</div></div>`).join('') + `<div class="small muted">${l.pilgrimsToday} pilgrims today · relics add Faith and draw pilgrims who spend at the market.</div>` : '<div class="muted small">None yet. Great miracles before many witnesses can leave a relic behind.</div>');
+    const got = G.Data.deeds.filter((d) => l.deeds[d.id]).length;
+    h += `<h4>Deeds (${got} / ${G.Data.deeds.length})</h4><div class="deeds">${G.Data.deeds.map((d) => `<div class="deed ${l.deeds[d.id] ? 'got' : ''}"><b>${l.deeds[d.id] ? '✦' : '○'} ${esc(d.name)}</b>${esc(d.desc)}</div>`).join('')}</div>`;
+    if (l.rumours.length) h += '<h4>Rumours in the streets</h4>' + l.rumours.slice(-4).reverse().map((r) => `<div class="mem">${esc(r.text)}</div>`).join('');
     h += '<h4>Divine exposure</h4>' + UI.meter('Exposure', world.country.exposure, '#fff2c0', Math.round(world.country.exposure), 'How openly people have witnessed or documented your interventions.');
     h += '<h4>The Church</h4>';
     const ch = world.church;
@@ -7829,7 +8987,8 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       return;
     }
     UI.$('#overlay-bar').classList.remove('hidden');
-    UI.$('#overlay-bar').innerHTML = `<button data-roofs="1" class="${st.roofMode === 'cutaway' ? 'active' : ''}" title="Toggle roofs (R)">🏠 Roofs: ${st.roofMode === 'cutaway' ? 'lifted' : 'auto'}</button>`;
+    UI.$('#overlay-bar').innerHTML = `<button data-roofs="1" class="${st.roofMode === 'cutaway' ? 'active' : ''}" title="Toggle roofs (R)">🏠 Roofs: ${st.roofMode === 'cutaway' ? 'lifted' : 'auto'}</button>` +
+      Object.keys(UI.Atmos.LENSES).map((k) => `<button data-lens="${k}" class="${(st.lens || 'none') === k ? 'active' : ''}" title="Lens (V cycles)">${k === 'none' ? '◌' : '◉'} ${esc(UI.Atmos.LENSES[k])}</button>`).join('');
     const pos = S.playerPos(world);
     const b = S.buildingAt(world, pos.x, pos.y);
     const d = S.districtName(S.districtAt(world, pos.x, pos.y));
@@ -7973,6 +9132,30 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     UI.$('#chron-level').onchange = () => Sc.chronicle(input.value, +UI.$('#chron-level').value);
   };
 
+  // ---------- The Thornhaven Herald ----------
+  Sc.herald = function (index) {
+    const w = UI.state.world;
+    const eds = w.life.herald;
+    w.life.heraldUnread = false;
+    if (!eds.length) {
+      Sc.open(`<div class="herald"><h1>The Thornhaven Herald</h1><p style="text-align:center;margin-top:16px">The first edition goes to press at dawn tomorrow.</p><div class="nav"><span></span><button data-screen="close">Close</button></div></div>`);
+      return;
+    }
+    const i = index == null ? eds.length - 1 : Math.max(0, Math.min(eds.length - 1, index));
+    const e = eds[i];
+    const lead = e.headlines[0];
+    let body = '';
+    if (lead) body += `<article class="lead"><h3>${esc(lead.title)}</h3><p>${esc(lead.text)}</p></article>`;
+    for (const hl of e.headlines.slice(1)) body += `<article><h3>${esc(hl.title)}</h3><p>${esc(hl.text)}</p></article>`;
+    if (!e.headlines.length) body += '<article><h3>A Quiet Day in Thornhaven</h3><p>Nothing of note troubled the city. The bakers baked, the bells rang, and the river kept to its banks.</p></article>';
+    body += `<div class="box"><b>Weather.</b> ${esc(e.season)}, ${esc(e.weather.toLowerCase())}.<br><b>Market.</b> A loaf of bread: ${e.bread} pennies.<br><b>Parish register.</b> ${e.births} born, ${e.deaths} buried.${e.notice ? `<br><b>Coming.</b> ${esc(e.notice)}` : ''}</div>`;
+    if (e.rumours.length) body += `<div class="box"><b>Overheard at the Copper Kettle</b>${e.rumours.map((r) => `<p style="margin-top:4px;font-style:italic">${esc(r)}</p>`).join('')}</div>`;
+    Sc.open(`<div class="herald"><h1>The Thornhaven Herald</h1>
+      <div class="masthead"><span>${esc(e.date)}</span><span>By leave of ${esc(e.ruler)}</span><span>One penny</span></div>
+      <div class="cols">${body}</div>
+      <div class="nav"><button data-herald="${i - 1}" ${i > 0 ? '' : 'disabled'}>‹ Earlier edition</button><button data-screen="close">Close</button><button data-herald="${i + 1}" ${i < eds.length - 1 ? '' : 'disabled'}>Later edition ›</button></div></div>`);
+  };
+
   // ---------- Help ----------
   Sc.help = function () {
     const back = UI.state.world ? 'menu' : 'title';
@@ -7982,8 +9165,9 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       <h4>Prayers</h4><p>People pray from their circumstances. Each prayer can be answered <b>directly</b> (a reliable but costly miracle), <b>indirectly</b> (move a human to act; they may refuse), with a <b>delayed</b> answer, an <b>alternative</b> outcome, or <b>silence</b>. People remember. Unanswered prayers breed doubt — especially where earlier miracles raised expectations.</p>
       <h4>Three forms</h4><p><b>Spectral</b>: drift unseen and observe; only people with <b>The Gift</b> can sense you. <b>Possession</b>: inhabit someone within range to act through them — warn neighbours, carry people from a flood, make a ruler's decision — at a cost and with aftereffects. <b>Human</b>: walk as an ordinary person; talk, help, learn rumours — but no divine powers, and guards, floods and suspicion are real dangers.</p>
       <h4>Politics and intrigue</h4><p>Use <b>Sway</b> on anyone to plant an ambition: war, an iron fist, a coup, revolt, theocracy, reform, peace, mercy or loyalty. People may refuse. A ruler acts on theirs (declaring war, imposing martial law). A general or noble pushed toward a coup starts a <b>conspiracy</b> that recruits allies, can be discovered, and strikes when strong enough. The Nation tab tracks it. In human form you can <b>persuade</b> people for free, at a risk. Possess a ruler to declare war, impose martial law or purge the nobles; possess a plotter to strike now, or a guard to betray the plot.</p>
+      <h4>A living world</h4><p>Seasons turn and weather changes: storms drive people indoors and fog hides your miracles from witnesses. Festivals fill the square, funerals and weddings gather families, omens appear in the sky for you to interpret, and great miracles can leave relics that draw pilgrims. Follow (☆) people to hear about their lives, read the daily <b>Herald</b>, and collect <b>Deeds</b>. Turn on sound with 🔇.</p>
       <h4>Consequences</h4><p>Witnesses interpret miracles through their own beliefs: a protector, a judge, coincidence or fraud. Stories spread through families. Gatherings form, merge into the Church or split from it. Rulers claim your miracles for themselves. Politics responds to legitimacy, corruption, inequality, loyalty and religion — you can tip the balance, never dictate it.</p>
-      <h4>Controls</h4><div class="kv"><div>WASD / arrows</div><div>Move (spirit, vessel, or human body)</div><div>Click</div><div>Select a person, building, prayer or province</div><div>Right-click</div><div>Move to a point</div><div>Mouse wheel</div><div>Zoom</div><div>Space / 1–5</div><div>Pause / speed</div><div>M / L</div><div>World / Local view</div><div>Q / E / H</div><div>Spectral / Possess selected / Human form</div><div>F</div><div>Camera follows you</div><div>R</div><div>Lift all roofs (they also lift when you zoom in or look inside a building)</div><div>C</div><div>Chronicle</div><div>Esc</div><div>Menu</div></div>
+      <h4>Controls</h4><div class="kv"><div>WASD / arrows</div><div>Move (spirit, vessel, or human body)</div><div>Click</div><div>Select a person, building, prayer or province</div><div>Right-click</div><div>Move to a point</div><div>Mouse wheel</div><div>Zoom</div><div>Space / 1–5</div><div>Pause / speed</div><div>M / L</div><div>World / Local view</div><div>Q / E / H</div><div>Spectral / Possess selected / Human form</div><div>F</div><div>Camera follows you</div><div>V</div><div>Cycle lenses: belief, mood, danger, intrigue</div><div>N</div><div>Read the Herald</div><div>P</div><div>Photo mode (hide the interface)</div><div>[ and ]</div><div>Hide or show the side panels</div><div>?</div><div>This help</div><div>R</div><div>Lift all roofs (they also lift when you zoom in or look inside a building)</div><div>C</div><div>Chronicle</div><div>Esc</div><div>Menu</div></div>
       <div style="text-align:right;margin-top:16px"><button class="btn secondary" data-screen="${back}">Back</button></div>`);
   };
 
@@ -8120,6 +9304,19 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       S.saveToSlot(w, 'autosave');
     }
     draw(now);
+    if (now - (st.lastAmbient || 0) > 200) {
+      st.lastAmbient = now;
+      const mm = UI.$('#minimap');
+      if (st.view === 'local') {
+        mm.classList.remove('hidden');
+        UI.Atmos.minimap(mm, w);
+      } else mm.classList.add('hidden');
+      if (UI.Sound.on) {
+        const cam = st.camera;
+        const crowd = S.living(w).filter((c) => !c.asleep && Math.abs(c.x - cam.x) < 8 && Math.abs(c.y - cam.y) < 6).length;
+        UI.Sound.update(w, { crowd, river: Math.abs(cam.x - 38) < 8 }, now);
+      }
+    }
     if (st.dirty || now - lastPanel > 400) {
       lastPanel = now;
       st.dirty = false;
@@ -8234,11 +9431,22 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     }
     const t = UI.Local.toTile(p.x, p.y, cssW, cssH);
     st.hover = UI.Local.hitTest(w, t.x, t.y);
-    canvas.title = '';
+    const card = UI.$('#hovercard');
     if (st.hover && st.hover.kind === 'character') {
       const c = S.char(w, st.hover.id);
-      canvas.title = `${c.name} — ${c.occupation}, ${c.activity}`;
-    } else if (st.hover && st.hover.kind === 'building') canvas.title = S.building(w, st.hover.id).name;
+      const pr = w.prayers.find((x) => x.requesterId === c.id && x.status === 'pending');
+      card.innerHTML = `${UI.Figures.portrait(c, 44)}<div><b>${UI.esc(c.name)}</b>${UI.esc(c.occupation)} · ${UI.esc(c.activity)}<br><span class="muted">Mood ${UI.esc(G.Util.level5(c.mood).toLowerCase())}${c.known.beliefs ? ` · belief ${Math.round(c.belief)}` : ''}${c.illness ? ' · <span class="red">ill</span>' : ''}</span>${pr ? `<br><span class="gold">✦ ${UI.esc(pr.situation)}</span>` : ''}</div>`;
+      card.style.left = Math.min(p.x + 16, cssW - 290) + 'px';
+      card.style.top = Math.min(p.y + 16, cssH - 90) + 'px';
+      card.classList.remove('hidden');
+    } else if (st.hover && st.hover.kind === 'building') {
+      const b = S.building(w, st.hover.id);
+      const inside = S.living(w).filter((c) => S.buildingAt(w, c.x, c.y) === b).length;
+      card.innerHTML = `<div><b>${UI.esc(b.name)}</b>${inside} inside${b.protectedUntil > w.t ? ' · <span class="gold">warded</span>' : ''}${b.damage > 20 ? ' · <span class="red">damaged</span>' : ''}</div>`;
+      card.style.left = Math.min(p.x + 16, cssW - 290) + 'px';
+      card.style.top = Math.min(p.y + 16, cssH - 60) + 'px';
+      card.classList.remove('hidden');
+    } else card.classList.add('hidden');
   }
 
   function onKey(e, down) {
@@ -8265,6 +9473,15 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     else if (key === 'e') possessSelected();
     else if (key === 'f') st.camera.follow = true;
     else if (key === 'r') toggleRoofs();
+    else if (key === 'v') {
+      const ks = Object.keys(UI.Atmos.LENSES);
+      st.lens = ks[(ks.indexOf(st.lens || 'none') + 1) % ks.length];
+      UI.toast(`Lens: ${UI.Atmos.LENSES[st.lens]}`);
+    } else if (key === 'n') Sc.herald();
+    else if (key === 'p') document.body.classList.toggle('photo');
+    else if (key === '[') UI.$('#app').classList.toggle('hide-left');
+    else if (key === ']') UI.$('#app').classList.toggle('hide-right');
+    else if (key === '?') Sc.help();
     else if (key === 'c') Sc.chronicle();
     else if (key === '+' || key === '=') zoom(1.2);
     else if (key === '-') zoom(1 / 1.2);
@@ -8350,6 +9567,14 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
     }
     if (d.possess) return UI.cmd({ type: 'form', form: 'possession', targetId: +d.possess });
     if (d.whisper) return UI.cmd({ type: 'speakGifted', targetId: +d.whisper });
+    if (d.watch) return UI.cmd({ type: 'watch', targetId: +d.watch });
+    if (d.omen) return UI.cmd({ type: 'claimOmen', omenId: +d.omen, meaning: d.meaning });
+    if (d.lens) {
+      st.lens = d.lens;
+      st.dirty = true;
+      return;
+    }
+    if (d.herald != null) return Sc.herald(+d.herald);
     if (d.persuade) {
       const sel = document.querySelector('select[data-optfor="persuade"]');
       return UI.cmd({ type: 'persuade', targetId: +d.persuade, agenda: sel ? sel.value : 'loyalty' });
@@ -8423,6 +9648,22 @@ table.t td { padding: 4px; border-bottom: 1px solid #ffffff08; }
       onCanvasClick(e);
     });
     canvas.addEventListener('contextmenu', onCanvasContext);
+    canvas.addEventListener('mouseleave', () => UI.$('#hovercard').classList.add('hidden'));
+    UI.$('#minimap').addEventListener('click', (e) => {
+      const r = e.target.getBoundingClientRect();
+      st.camera.follow = false;
+      st.camera.x = ((e.clientX - r.left) / r.width) * G.Data.city.width;
+      st.camera.y = ((e.clientY - r.top) / r.height) * G.Data.city.height;
+    });
+    UI.$('#btn-herald').onclick = () => st.world && Sc.herald();
+    UI.$('#btn-help').onclick = () => Sc.help();
+    UI.$('#btn-sound').onclick = () => {
+      const on = UI.Sound.toggle();
+      UI.toast(on ? 'Sound on: wind, rain, bells, birds and the murmur of the market.' : 'Sound off.');
+      st.dirty = true;
+    };
+    UI.$('#btn-left').onclick = () => UI.$('#app').classList.toggle('hide-left');
+    UI.$('#btn-right').onclick = () => UI.$('#app').classList.toggle('hide-right');
     canvas.addEventListener('mousemove', onCanvasMove);
     canvas.addEventListener('mousedown', (e) => {
       if (e.button === 1 || e.shiftKey) {

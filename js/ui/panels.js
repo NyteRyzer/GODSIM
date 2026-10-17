@@ -38,6 +38,11 @@
     UI.$('#tier').textContent = `${tier.title}`;
     const p = T.dateParts(world);
     UI.$('#clock').innerHTML = `${T.WEEKDAYS[p.weekday]}, ${T.format(world)}`;
+    const wx = S.weather(world);
+    const fest = world.life.festival && world.life.festival.until > world.t ? world.life.festival : null;
+    UI.$('#sky').innerHTML = `${esc(S.season(world).name)} · ${wx.icon} ${esc(wx.name)}${fest ? `<span class="fest" title="${esc(fest.name)}">🎉<span class="fname"> ${esc(fest.name)}</span></span>` : ''}`;
+    UI.$('#herald-dot').classList.toggle('hidden', !world.life.heraldUnread);
+    UI.$('#btn-sound').textContent = UI.Sound && UI.Sound.on ? '🔊' : '🔇';
     UI.$$('#speed button').forEach((b) => b.classList.toggle('active', +b.dataset.speed === UI.state.speed));
     UI.$$('#views button').forEach((b) => b.classList.toggle('active', b.dataset.view === UI.state.view));
     UI.$$('#forms button').forEach((b) => b.classList.toggle('active', b.dataset.form === world.player.form));
@@ -158,8 +163,9 @@
     const dist = U.dist(c.x, c.y, pos.x, pos.y);
     const place = (S.building(world, c.at) || G.Data.city.zones.find((z) => z.id === c.at) || { name: S.districtName(S.districtAt(world, c.x, c.y)) }).name;
     let h = `<div style="display:flex;gap:10px;align-items:center">${UI.Figures.portrait(c, 60)}<div><h3>${esc(c.name)}</h3>
-      <div class="muted">${c.sex === 'f' ? 'Woman' : 'Man'}, ${Math.floor(c.age)} · ${esc(c.occupation)}${c.alive ? '' : ` · <span class="red">died of ${esc(c.causeOfDeath)}</span>`}</div></div></div>`;
-    if (!c.alive) return h + memoriesHtml(world, c, true);
+      <div class="muted">${c.sex === 'f' ? 'Woman' : 'Man'}, ${Math.floor(c.age)} · ${esc(c.occupation)}${c.alive ? '' : ` · <span class="red">died of ${esc(c.causeOfDeath)}</span>`}</div>
+      <button class="chip ${world.life.watch.includes(c.id) ? 'active' : ''}" data-watch="${c.id}" style="margin-top:5px">${world.life.watch.includes(c.id) ? '★ Following' : '☆ Follow'}</button></div></div>`;
+    if (!c.alive) return h + lifeStoryHtml(world, c) + memoriesHtml(world, c, true);
     h += `<div style="margin-top:6px">${esc(capital(c.activity))} at ${esc(place)}${c.asleep ? ' (asleep)' : ''}</div>`;
     const tags = [];
     if (c.flags.trapped) tags.push('<span class="tag warn">Trapped by flood</span>');
@@ -228,9 +234,34 @@
     h += family.map(relRow).join('') || '<div class="muted small">No family.</div>';
     if (k.traits) h += others.map(relRow).join('');
     else if (others.length) h += '<div class="unknown small">Friends and rivals unknown.</div>';
+    if (rels.length) h += relWeb(world, c, k.traits ? rels : family);
+    h += lifeStoryHtml(world, c);
     h += memoriesHtml(world, c, k.memories);
     return h;
   };
+  // A small web of relationships around the person.
+  function relWeb(world, c, rels) {
+    const W = 330, H = 190, cx = W / 2, cy = H / 2;
+    const list = rels.slice(0, 12);
+    const col = { spouse: '#e0b341', parent: '#7ab36a', child: '#7ab36a', sibling: '#7ab36a', friend: '#5b8def', rival: '#e2564f', colleague: '#a77be0' };
+    let svg = `<svg class="relweb" viewBox="0 0 ${W} ${H}" role="img" aria-label="Relationships">`;
+    list.forEach((x, i) => {
+      const a = (i / list.length) * Math.PI * 2 - Math.PI / 2;
+      const px = cx + Math.cos(a) * 120, py = cy + Math.sin(a) * 66;
+      svg += `<line x1="${cx}" y1="${cy}" x2="${px}" y2="${py}" stroke="${col[x.r.type] || '#8f9ab5'}" stroke-width="${1 + x.r.affinity / 40}" stroke-opacity="${x.o.alive ? 0.9 : 0.35}" ${x.r.type === 'rival' ? 'stroke-dasharray="4 3"' : ''}/>`;
+    });
+    list.forEach((x, i) => {
+      const a = (i / list.length) * Math.PI * 2 - Math.PI / 2;
+      const px = cx + Math.cos(a) * 120, py = cy + Math.sin(a) * 66;
+      svg += `<g data-char="${x.o.id}" style="cursor:pointer"><circle cx="${px}" cy="${py}" r="14" fill="${x.o.alive ? UI.roleColor(x.o) : '#3a4560'}" stroke="#0b1020" stroke-width="2"/><text x="${px}" y="${py + 26}" fill="#e6e9f2" font-size="10" text-anchor="middle">${esc(x.o.first)}${x.o.alive ? '' : ' †'}</text></g>`;
+    });
+    svg += `<circle cx="${cx}" cy="${cy}" r="18" fill="${UI.roleColor(c)}" stroke="#e0b341" stroke-width="2.5"/><text x="${cx}" y="${cy + 4}" fill="#0b1020" font-size="10" font-weight="700" text-anchor="middle">${esc(c.first)}</text></svg>`;
+    return svg + '<div class="small muted">Gold: spouse · green: family · blue: friend · red dashes: rival</div>';
+  }
+  function lifeStoryHtml(world, c) {
+    if (!c.known.memories && c.alive) return '';
+    return `<details class="story"><summary>📖 Life story</summary>${S.lifeStory(world, c).map((s) => `<p>${esc(s)}</p>`).join('')}</details>`;
+  }
   function capital(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
   }
@@ -412,6 +443,20 @@
     h += `<div class="kv"><div>Reserve</div><div>${Math.floor(f.current)} / ${f.capacity}</div><div>Net income</div><div>${f.rates.net.toFixed(2)} / hour</div><div>Total earned</div><div>${Math.floor(f.earned)}</div><div>Total spent</div><div>${Math.floor(f.spent)}</div><div>Divine renown</div><div>${Math.floor(f.renown || 0)}</div></div>`;
     h += '<h4>Path of power</h4>';
     for (const t of G.Data.tiers) h += `<div class="${f.tier >= t.tier ? '' : 'muted'}">${f.tier >= t.tier ? '✔' : '○'} <b>${esc(t.title)}</b> <span class="small">(${t.earned} renown, capacity ${t.capacity})</span><div class="small muted">${esc(t.unlocks)}</div></div>`;
+    const l = world.life;
+    const omens = l.omens.filter((o) => o.until > world.t);
+    h += '<h4>Omens</h4>';
+    if (!omens.length) h += '<div class="muted small">The sky is quiet. Comets, eclipses and strange beasts appear now and then; you can tell people what they mean.</div>';
+    for (const o of omens) {
+      h += `<div class="card"><b>${esc(o.name)}</b><div class="small">${esc(o.text)}</div>`;
+      if (o.claimed) h += `<div class="small gold">You declared it ${esc(G.Data.omenMeanings[o.claimed].label.toLowerCase())}.</div>`;
+      else for (const m in G.Data.omenMeanings) h += `<button class="action" data-omen="${o.id}" data-meaning="${m}" ${world.faith.current >= 40 && world.player.form !== 'human' ? '' : 'disabled'}><span>${esc(G.Data.omenMeanings[m].label)}<span class="sub">${esc(G.Data.omenMeanings[m].desc)}</span></span><span class="cost">40</span></button>`;
+      h += '</div>';
+    }
+    h += '<h4>Relics</h4>' + (l.relics.length ? l.relics.map((r) => `<div class="card"><b>✧ ${esc(r.name)}</b><div class="small muted">Enshrined ${T.format(world, r.t, false)}, after ${esc(r.origin)}.</div></div>`).join('') + `<div class="small muted">${l.pilgrimsToday} pilgrims today · relics add Faith and draw pilgrims who spend at the market.</div>` : '<div class="muted small">None yet. Great miracles before many witnesses can leave a relic behind.</div>');
+    const got = G.Data.deeds.filter((d) => l.deeds[d.id]).length;
+    h += `<h4>Deeds (${got} / ${G.Data.deeds.length})</h4><div class="deeds">${G.Data.deeds.map((d) => `<div class="deed ${l.deeds[d.id] ? 'got' : ''}"><b>${l.deeds[d.id] ? '✦' : '○'} ${esc(d.name)}</b>${esc(d.desc)}</div>`).join('')}</div>`;
+    if (l.rumours.length) h += '<h4>Rumours in the streets</h4>' + l.rumours.slice(-4).reverse().map((r) => `<div class="mem">${esc(r.text)}</div>`).join('');
     h += '<h4>Divine exposure</h4>' + UI.meter('Exposure', world.country.exposure, '#fff2c0', Math.round(world.country.exposure), 'How openly people have witnessed or documented your interventions.');
     h += '<h4>The Church</h4>';
     const ch = world.church;
@@ -494,7 +539,8 @@
       return;
     }
     UI.$('#overlay-bar').classList.remove('hidden');
-    UI.$('#overlay-bar').innerHTML = `<button data-roofs="1" class="${st.roofMode === 'cutaway' ? 'active' : ''}" title="Toggle roofs (R)">🏠 Roofs: ${st.roofMode === 'cutaway' ? 'lifted' : 'auto'}</button>`;
+    UI.$('#overlay-bar').innerHTML = `<button data-roofs="1" class="${st.roofMode === 'cutaway' ? 'active' : ''}" title="Toggle roofs (R)">🏠 Roofs: ${st.roofMode === 'cutaway' ? 'lifted' : 'auto'}</button>` +
+      Object.keys(UI.Atmos.LENSES).map((k) => `<button data-lens="${k}" class="${(st.lens || 'none') === k ? 'active' : ''}" title="Lens (V cycles)">${k === 'none' ? '◌' : '◉'} ${esc(UI.Atmos.LENSES[k])}</button>`).join('');
     const pos = S.playerPos(world);
     const b = S.buildingAt(world, pos.x, pos.y);
     const d = S.districtName(S.districtAt(world, pos.x, pos.y));

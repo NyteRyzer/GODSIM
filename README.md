@@ -35,6 +35,17 @@ Also included:
 - **Witness interpretation**: every miracle is read through each witness's beliefs (protector, judge, coincidence or fraud). Stories spread through families, new religious movements form, and those movements merge into the Church or split from it in a schism.
 - **Divine reputation per community** (not a global morality score) and **divine exposure**.
 - **Memory and expectations**: people remember answered and unanswered prayers. Earlier miracles make later silence hurt more, and faith stability buffers belief so one bad event cannot erase years of it.
+- **A living world**:
+  - Seasons change the look of the town and the simulation (winter sickness, harvest income, spring blossom).
+  - Weather (clear, overcast, rain, storms, fog, snow) drives people indoors, damages roofs, and lets fog hide miracles from witnesses.
+  - Festivals (Spring Blessing, Midsummer Fair, Harvest Festival, Midwinter Vigil) fill the square and give Faith.
+  - Funerals and weddings gather families at the Temple.
+  - Omens (comets, eclipses, blood moons, a white stag) appear; you can declare them a blessing, a warning, doom for the ruler, or a call to prophecy.
+  - Great witnessed miracles can leave relics that add Faith and draw pilgrims.
+  - A rumour mill retells events, distorted.
+  - The Thornhaven Herald prints a daily edition.
+  - 20 Deeds (achievements), and a watchlist that alerts you about the people you follow.
+- **Atmosphere and interface**: dawn and dusk light, rain, lightning, snow and drifting fog, birds, boats and farmyard chickens, pilgrims walking to the Temple, festival bunting, speech bubbles, prayer lights rising to heaven, and particle effects for miracles. There is a procedural soundscape (wind, rain, bells, birds, crickets, market murmur, thunder) and lenses for belief, mood, danger and intrigue. Also: a minimap, hover cards, a relationship web and a written life story for each person, collapsible side panels, photo mode and smoother camera movement.
 - **Intrigue**: *Sway* plants an ambition in anyone (war, iron rule, coup, revolt, theocracy, reform, peace, mercy, loyalty), and in human form you can persuade people for free. Rulers act on their ambitions: they declare wars of conquest, impose martial law, purge the nobility. Coups, uprisings and holy coups grow as conspiracies that recruit members, risk discovery and strike when strong; you can join, launch or betray them through possession. Plots also form on their own when conditions ripen.
 - **Leader decisions**: rulers choose based on their own personality and beliefs. A vision, *Inspire a Leader*, or possessing them can sway the choice, but nothing guarantees it.
 - **Crises**: a scripted opening flood (the bible's River Miracle scenario), then emergent spring floods, plague, famine and war with a hostile neighbour.
@@ -59,6 +70,11 @@ Also included:
 | `M` / `L` | World view / Local view |
 | `Q` / `E` / `H` | Spectral / Possess the selected person / Human form |
 | `F` | Camera follows you |
+| `V` | Cycle lenses (belief, mood, danger, intrigue) |
+| `N` | Read the Herald |
+| `P` | Photo mode |
+| `[` / `]` | Hide or show side panels |
+| `?` | Controls |
 | `R` | Lift all roofs / auto |
 | `C` | Chronicle |
 | Esc | Menu: save, load, export, import |
@@ -78,6 +94,7 @@ js/sim/*.js         simulation core: no DOM access, runs headless in Node
   prayers.js        prayer templates, generation, responses, memory & expectation
   interventions.js  divine abilities: costs, validation, effects
   religion.js       witnesses, reputation, movements, schisms, The Gift
+  living.js         seasons, weather, festivals, omens, relics, rumours, ceremonies, the Herald, deeds
   intrigue.js       ambitions, conspiracies, wars of choice, martial law, purges
   politics.js       derived pressures, leader decisions, regime transitions, succession, elections
   crises.js         flood, plague, famine, war, rescues
@@ -85,6 +102,7 @@ js/sim/*.js         simulation core: no DOM access, runs headless in Node
   sim.js            minute/hour/day orchestration, challenges, the command API
   save.js           versioned serialisation, slots, migration hook
 js/ui/scenery.js    terrain, building interiors, roofs, lights and weather (prerendered layers)
+js/ui/atmosphere.js light, weather, wildlife, speech, prayer lights, miracle effects, lenses, minimap, sound
 js/ui/figures.js    2D people and portraits (appearance derived from identity; not saved)
 js/ui/*.js          presentation only: it reads state and sends commands through G.Sim.command
 ```

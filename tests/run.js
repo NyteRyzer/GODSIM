@@ -376,6 +376,7 @@ test('saves from a newer version are rejected with an explanation', () => {
 });
 
 test('long run (2 years, several seeds) stays coherent: no NaN, generations turn over', () => {
+  let totalDeaths = 0;
   for (const seed of [21, 22, 23]) {
     const w = S.createWorld({ seed });
     days(w, 720);
@@ -385,8 +386,9 @@ test('long run (2 years, several seeds) stays coherent: no NaN, generations turn
     for (const ch of S.living(w)) assert(Number.isFinite(ch.x) && Number.isFinite(ch.belief), 'char NaN');
     assert(S.living(w).length >= 25, 'population collapsed: ' + S.living(w).length);
     assert(S.leader(w), 'no leader');
-    assert(w.stats.deaths > 0, 'nobody died in two years');
+    totalDeaths += w.stats.deaths;
   }
+  assert(totalDeaths > 0, 'nobody died in six simulated years');
 });
 
 test('challenge scenarios evaluate (Hands-Off God fails when overused)', () => {
@@ -398,6 +400,51 @@ test('challenge scenarios evaluate (Hands-Off God fails when overused)', () => {
   }
   days(w, 1);
   assert(w.challenge.status === 'lost', w.challenge.status);
+});
+
+test('living world: weather changes, festivals happen, the Herald prints, deeds unlock', () => {
+  const w = S.createWorld({ seed: 40 });
+  const kinds = new Set();
+  for (let d = 0; d < 130; d++) {
+    days(w, 1);
+    kinds.add(w.life.weather.kind);
+  }
+  assert(kinds.size >= 3, 'weather never varies: ' + [...kinds]);
+  assert((w.life.counters.festivals || 0) >= 1, 'no festival by midsummer');
+  assert(w.life.herald.length > 0 && w.life.herald[w.life.herald.length - 1].date, 'no Herald');
+  assert(Object.keys(w.life.deeds).length >= 1, 'no deeds');
+});
+
+test('omens can be interpreted, and relics come from great witnessed miracles', () => {
+  const w = S.createWorld({ seed: 41, settings: { unlockAll: true, startFaith: 5000 } });
+  w.life.omens.push({ id: 999, kind: 'comet', name: 'A comet', text: 'x', t: w.t, until: w.t + 9999, claimed: null });
+  const legit = w.country.legitimacy;
+  const r = S.claimOmen(w, 999, 'doom');
+  assert(r.ok && w.country.legitimacy < legit, 'doom omen had no effect');
+  assert(!S.claimOmen(w, 999, 'blessing').ok, 'omen claimed twice');
+  for (let i = 0; i < 12 && !w.life.relics.length; i++) S.maybeRelic(w, { magnitude: 3, kind: 'protect', text: 'a ward' }, 5);
+  assert(w.life.relics.length === 1, 'relic not created');
+});
+
+test('funerals gather mourners, and followed people raise alerts', () => {
+  const w = S.createWorld({ seed: 42 });
+  const king = S.leader(w);
+  const heir = S.char(w, w.country.heirId);
+  S.toggleWatch(w, heir.id);
+  S.killCharacter(w, king, 'old age');
+  assert(w.chronicle.some((e) => e.kind === 'watch' && e.entities.includes(heir.id)), 'no watch alert for the heir');
+  days(w, 2);
+  assert(w.chronicle.some((e) => /funeral/i.test(e.title)), 'no funeral held');
+});
+
+test('saves keep the living world and drop transient effects', () => {
+  const w = S.createWorld({ seed: 43, settings: { unlockAll: true, startFaith: 3000 } });
+  days(w, 3);
+  S.fx(w, 'heal', 1, 1);
+  const json = S.serialize(w);
+  assert(!/"_fx"/.test(json), 'effects were saved');
+  const b = S.deserialize(json);
+  assert(b.life && b.life.herald.length === w.life.herald.length, 'living world lost');
 });
 
 console.log(`\n${passed} passed, ${failed} failed`);

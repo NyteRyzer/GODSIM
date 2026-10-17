@@ -59,6 +59,7 @@
       if (p.human.cooldownUntil > world.t) return { ok: false, msg: `Your mortal form needs ${T.duration(p.human.cooldownUntil - world.t)} to re-form.` };
       if (S.inRiver(p.x, p.y)) return { ok: false, msg: 'You cannot take form over the river.' };
       p.form = 'human';
+      S.count(world, 'humanForm');
       p.human.x = p.x;
       p.human.y = p.y;
       p.human.health = Math.max(p.human.health, 60);
@@ -123,7 +124,11 @@
     c.known.memories = true;
     world.stats.possessions++;
     c.divine.possessed++;
-    if (c.id === world.country.leaderId) world.challenge.possessedRuler = true;
+    if (c.id === world.country.leaderId) {
+      world.challenge.possessedRuler = true;
+      S.count(world, 'possessRuler');
+    }
+    S.fx(world, 'possess', c.x, c.y);
     S.recomputeFaithRates(world);
     S.log(world, { title: `You possess ${c.first}`, text: `You slip into ${c.name}. You see what they see, and know what they know.`, level: 1, kind: 'divine', entities: [c.id], cost });
     return { ok: true, msg: `You are inside ${c.name}.` };

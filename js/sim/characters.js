@@ -359,6 +359,7 @@
       if (!c.illness) {
         let p = 0.0025 + (c.age > 55 ? 0.004 : 0) + (c.hunger > 60 ? 0.01 : 0);
         if (world.plague.active) p += 0.035;
+        if (S.season && S.season(world).id === 'winter') p *= 1.6;
         if (rng.chance(p * world.settings.crisisFrequency)) {
           c.illness = { name: world.plague.active ? 'the plague' : rng.pick(ILLNESSES), severity: rng.int(20, 55) };
           S.addMemory(world, c, 'illness', `Fell ill with ${c.illness.name}.`, 1);
@@ -425,6 +426,10 @@
       S.addMemory(world, f, 'grief', `Lost ${c.first} to ${cause}.`, 2);
     }
     const level = c.role === 'monarch' || c.key ? 2 : c.age < 16 ? 1 : 0;
+    if (S.scheduleCeremony) {
+      const guests = Object.keys(c.relations).map((k) => S.char(world, +k)).filter((o) => o && o.alive && c.relations[o.id].type !== 'rival');
+      if (guests.length) S.scheduleCeremony(world, 'funeral', [c], guests);
+    }
     S.log(world, { title: `${c.name} has died`, text: `${c.name}, aged ${Math.floor(c.age)}, died of ${cause}.`, level, kind: 'death', entities: [c.id] });
     S.onCharacterDeath(world, c);
   };
@@ -448,6 +453,10 @@
           S.addMemory(world, o, 'marriage', `Married ${c.first}.`, 2);
           if (c.flags.lonelyPrayer) c.flags.lonelyPrayer = 0;
           S.log(world, { title: 'A wedding', text: `${c.name} married ${o.name}.`, level: 0, kind: 'life', entities: [c.id, o.id] });
+          if (S.scheduleCeremony) {
+            const guests = [...Object.keys(c.relations), ...Object.keys(o.relations)].map((k) => S.char(world, +k)).filter((g) => g && g.alive && g.id !== c.id && g.id !== o.id);
+            S.scheduleCeremony(world, 'wedding', [c, o], [...new Set(guests)]);
+          }
         }
       }
       // Births

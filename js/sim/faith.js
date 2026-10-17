@@ -48,6 +48,7 @@
     // Institutional: the church and organised movements.
     let institution = world.church.strength * 0.03 * (0.5 + country.religiousInfluence / 100);
     for (const m of world.movements) if (m.active) institution += m.strength * 0.02;
+    if (world.life) institution += world.life.relics.length * 0.35;
     // Upkeep
     let upkeep = 0;
     const upkeepItems = [];

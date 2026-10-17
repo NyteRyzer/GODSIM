@@ -71,14 +71,6 @@
     return null;
   };
 
-  function nightAlpha(world) {
-    const m = G.Time.minuteOfDay(world) / 60;
-    if (m >= 7 && m <= 18) return 0;
-    if (m > 18 && m < 21) return ((m - 18) / 3) * 0.5;
-    if (m >= 21 || m < 5) return 0.5;
-    return ((7 - m) / 2) * 0.5;
-  }
-
   // Which roofs are lifted: zoomed in, cutaway mode, or the building holds what you are looking at.
   function updateRoofs(world, pos) {
     const st = UI.state;
@@ -108,8 +100,15 @@
     layers();
     const pos = S.playerPos(world);
     if (st.camera.follow) {
-      st.camera.x = pos.x;
-      st.camera.y = pos.y;
+      // Glide after the player; snap on long jumps.
+      const dx = pos.x - st.camera.x, dy = pos.y - st.camera.y;
+      if (Math.abs(dx) + Math.abs(dy) > 10) {
+        st.camera.x = pos.x;
+        st.camera.y = pos.y;
+      } else {
+        st.camera.x += dx * 0.18;
+        st.camera.y += dy * 0.18;
+      }
     }
     const city = G.Data.city;
     // Keep the map filling the viewport where possible.
@@ -159,11 +158,15 @@
       ctx.setLineDash([]);
     }
     UI.Scenery.drawLampPosts(ctx, L.lamps, sx, sy, ts);
+    UI.Atmos.ground(ctx, world, sx, sy, ts, now);
+    UI.Atmos._view = { x0: -ox / ts, y0: -oy / ts, x1: (W - ox) / ts, y1: (H - oy) / ts };
 
     // People (figures only; markers are drawn later so they stay readable over roofs and at night)
     const r = Math.max(3, ts * 0.3);
     const u = ts / 20; // figure units -> pixels
     const people = S.living(world).sort((a, b) => a.y - b.y);
+    UI.Atmos.lens(ctx, world, people, sx, sy, ts);
+    UI.Atmos.pilgrims(ctx, world, sx, sy, ts, now);
     const onScreen = [];
     for (const c of people) {
       const x = sx(c.x), y = sy(c.y);
@@ -235,15 +238,11 @@
       }
     }
 
-    // Night, lights and weather
-    const nightA = nightAlpha(world);
-    if (nightA > 0) {
-      ctx.fillStyle = `rgba(8,14,40,${nightA})`;
-      ctx.fillRect(0, 0, W, H);
-      UI.Scenery.drawLights(ctx, world, L.lamps, sx, sy, ts, nightA * 2, now);
-    }
-    const fs = world.flood.stage;
-    if (fs === 'warning' || fs === 'rising' || fs === 'flooding') UI.Scenery.drawRain(ctx, W, H, now, fs === 'warning' ? 0.5 : 1);
+    // Sky, light and weather
+    UI.Atmos.sky(ctx, world, W, H, now);
+    const night = UI.Atmos.grade(ctx, world, W, H);
+    if (night > 0) UI.Scenery.drawLights(ctx, world, L.lamps, sx, sy, ts, night, now);
+    UI.Atmos.weather(ctx, world, W, H, now);
 
     // Player
     const px = sx(pos.x), py = sy(pos.y);
@@ -337,6 +336,14 @@
         ctx.fillText(c.first, x, ly);
       }
     }
+
+    // Living touches: rising prayers, speech, miracle effects
+    UI.Atmos.prayerLights(ctx, world, sx, sy, ts, u, now);
+    UI.Atmos.bubbles(ctx, world, onScreen, sx, sy, ts, u, now, (c) => {
+      const b = S.buildingAt(world, c.x, c.y);
+      return b && roofA(b.id) > 0.6;
+    });
+    UI.Atmos.fx(ctx, world, sx, sy, ts);
 
     // Building name plaques
     if (ts >= 16) {

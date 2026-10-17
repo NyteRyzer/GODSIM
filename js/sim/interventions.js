@@ -88,6 +88,11 @@
     world.faith.miracles++;
     if (world.challenge.status === 'active' && abilityId !== 'subtle_sign' && abilityId !== 'vision' && abilityId !== 'inspire' && abilityId !== 'sway') world.challenge.miracles++;
     const res = EFFECTS[abilityId](world, target, option, ctx) || {};
+    if (S.fx) {
+      const o = target && target.x != null ? (target.w != null ? { x: target.x + target.w / 2, y: target.y + target.h / 2 } : { x: target.x, y: target.y }) : S.playerPos(world);
+      S.fx(world, abilityId, o.x, o.y, { option });
+    }
+    if (abilityId === 'heal') S.count(world, 'heal');
     const msg = res.msg || `${a.name} performed.`;
     S.log(world, { title: `You used ${a.name}`, text: msg, level: a.tier >= 3 ? 2 : 1, kind: 'divine', entities: target && target.id && targetRef.kind === 'character' ? [target.id] : [], cost: check.cost });
     S.prayersAfterAbility(world, abilityId, target, option, targetRef ? targetRef.kind : null);

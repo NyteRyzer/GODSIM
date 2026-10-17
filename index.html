@@ -23,6 +23,7 @@
       </div>
       <div id="tier" class="tier"></div>
       <div id="clock" class="clock"></div>
+      <div id="sky" class="sky" title="Season and weather"></div>
       <div class="group" id="speed" role="group" aria-label="Time controls">
         <button data-speed="0" title="Pause (Space)">❚❚</button>
         <button data-speed="1" title="Slow (1)">▶</button>
@@ -41,6 +42,9 @@
         <button data-form="human" title="Walk as a human (H)">🚶 Human</button>
       </div>
       <div class="spacer"></div>
+      <button id="btn-herald" class="plain" title="The Thornhaven Herald (N)">📰<span class="lbl"> Herald</span><span id="herald-dot" class="dot hidden"></span></button>
+      <button id="btn-sound" class="plain" title="Sound on or off">🔇</button>
+      <button id="btn-help" class="plain" title="Controls (?)">?</button>
       <button id="btn-chronicle" class="plain" title="Chronicle (C)">📜<span class="lbl"> Chronicle</span></button>
       <button id="btn-menu" class="plain" title="Menu (Esc)">☰<span class="lbl"> Menu</span></button>
     </header>
@@ -59,6 +63,10 @@
       <div id="view-hint" class="view-hint"></div>
       <div id="overlay-bar" class="overlay-bar hidden"></div>
       <div id="form-bar" class="form-bar"></div>
+      <canvas id="minimap" width="180" height="120" title="Minimap: click to look there"></canvas>
+      <button id="btn-left" class="edge-btn left" title="Hide or show the prayer panel ([)">‹</button>
+      <button id="btn-right" class="edge-btn right" title="Hide or show the inspector (])">›</button>
+      <div id="hovercard" class="hovercard hidden"></div>
     </main>
 
     <aside id="right">
@@ -90,6 +98,7 @@
   <script src="js/sim/crises.js"></script>
   <script src="js/sim/politics.js"></script>
   <script src="js/sim/intrigue.js"></script>
+  <script src="js/sim/living.js"></script>
   <script src="js/sim/prayers.js"></script>
   <script src="js/sim/forms.js"></script>
   <script src="js/sim/sim.js"></script>
@@ -98,6 +107,7 @@
   <script src="js/ui/common.js"></script>
   <script src="js/ui/figures.js"></script>
   <script src="js/ui/scenery.js"></script>
+  <script src="js/ui/atmosphere.js"></script>
   <script src="js/ui/local.js"></script>
   <script src="js/ui/worldmap.js"></script>
   <script src="js/ui/panels.js"></script>
